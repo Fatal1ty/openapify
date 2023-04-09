@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import (
     Any,
     Dict,
@@ -13,10 +12,10 @@ from typing import (
     overload,
 )
 
-from apispec import BasePlugin
+import apispec
 from typing_extensions import TypeAlias
 
-from openapify.core.apispec import APISpec
+from openapify.core.document import OpenAPIDocument
 from openapify.core.jsonschema import ComponentType, build_json_schema
 from openapify.core.models import (
     Body,
@@ -57,17 +56,17 @@ def _merge_parameters(
 class OpenAPISpecBuilder:
     def __init__(
         self,
-        spec: Optional[APISpec] = None,
+        spec: Optional[apispec.APISpec] = None,
         title: str = "API",
         version: str = "1.0.0",
         openapi_version: str = "3.1.0",
-        plugins: Sequence[BasePlugin] = (),
+        plugins: Sequence[apispec.BasePlugin] = (),
         servers: Optional[List[Union[str, openapi.Server]]] = None,
         security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
         **options: Any,
     ):
         if spec is None:
-            spec = APISpec(
+            spec = OpenAPIDocument(
                 title=title,
                 version=version,
                 openapi_version=openapi_version,
@@ -177,7 +176,7 @@ class OpenAPISpecBuilder:
         result = []
         for name, param in query_params.items():
             if not isinstance(param, QueryParam):
-                param = QueryParam(param)
+                param = QueryParam(param, required=True)
             parameter_schema = build_json_schema(
                 param.value_type, self.spec, ComponentType.PARAMETER
             )
@@ -290,7 +289,7 @@ class OpenAPISpecBuilder:
                     header_objects[key] = value
         return openapi.Response(
             description=description,
-            headers=header_objects,
+            headers=header_objects or None,
             content={
                 media_type: openapi.MediaType(
                     schema=build_json_schema(schema, self.spec),
@@ -346,7 +345,9 @@ class OpenAPISpecBuilder:
 
 
 @overload
-def build_spec(routes: Iterable[RouteDef], spec: APISpec) -> APISpec:
+def build_spec(
+    routes: Iterable[RouteDef], spec: apispec.APISpec
+) -> apispec.APISpec:
     ...
 
 
@@ -357,24 +358,24 @@ def build_spec(
     title: str = "API",
     version: str = "1.0.0",
     openapi_version: str = "3.1.0",
-    plugins: Sequence[BasePlugin] = (),
+    plugins: Sequence[apispec.BasePlugin] = (),
     **options: Any,
-) -> APISpec:
+) -> apispec.APISpec:
     ...
 
 
 def build_spec(
     routes: Iterable[RouteDef],
-    spec: Optional[APISpec] = None,
+    spec: Optional[apispec.APISpec] = None,
     *,
     title: str = "API",
     version: str = "1.0.0",
     openapi_version: str = "3.1.0",
-    plugins: Sequence[BasePlugin] = (),
+    plugins: Sequence[apispec.BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
     security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
     **options: Any,
-) -> APISpec:
+) -> apispec.APISpec:
     builder = OpenAPISpecBuilder(
         spec=spec,
         title=title,

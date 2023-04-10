@@ -176,7 +176,7 @@ class OpenAPISpecBuilder:
         result = []
         for name, param in query_params.items():
             if not isinstance(param, QueryParam):
-                param = QueryParam(param, required=True)
+                param = QueryParam(param)
             parameter_schema = build_json_schema(
                 param.value_type, self.spec, ComponentType.PARAMETER
             )

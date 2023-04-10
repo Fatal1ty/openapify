@@ -61,9 +61,9 @@ Quickstart
 > more info.
 
 Let's see how to build an OpenAPI document with openapify. Suppose we are
-writing an app for a bookstore that return a book by title. Here we have a
+writing an app for a bookstore that return a list of new books. Here we have a
 dataclass model `Book` that would be used as a response model in a real-life
-scenario. A function `get_book` is our handler.
+scenario. A function `get_new_books` is our handler.
 
 ```python
 from dataclasses import dataclass
@@ -74,20 +74,20 @@ class Book:
     author: str
     year: int
 
-def get_book(...):
+def get_new_books(...):
     ...
 ```
 
-Now we want to say that our handler returns a json serialized book found by
-the `title` parameter. We use `request_schema` and `response_schema` decorators
-accordingly:
+Now we want to say that our handler returns a json serialized list of books
+limited by the optional `count` parameter. We use `request_schema`
+and `response_schema` decorators accordingly:
 
 ```python
 from openapify import request_schema, response_schema
 
-@request_schema(query_params={"title": str})
-@response_schema(Book)
-def get_book(...):
+@request_schema(query_params={"count": int})
+@response_schema(list[Book])
+def get_new_books(...):
     ...
 ```
 
@@ -99,7 +99,7 @@ method.
 from openapify import build_spec
 from openapify.core.models import RouteDef
 
-routes = [RouteDef("/book", "get", get_book)]
+routes = [RouteDef("/books", "get", get_new_book)]
 spec = build_spec(routes)
 print(spec.to_yaml())
 ```
@@ -112,17 +112,18 @@ paths:
   /book:
     get:
       parameters:
-      - name: title
+      - name: count
         in: query
-        required: true
         schema:
-          type: string
+          type: integer
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Book'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
 info:
   title: API
   version: 1.0.0
@@ -137,10 +138,13 @@ components:
           type: string
         author:
           type: string
+        year:
+          type: integer
       additionalProperties: false
       required:
       - title
       - author
+      - year
 ```
 
 Integration with web-frameworks

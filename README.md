@@ -730,7 +730,11 @@ Response object.
 <td>
 
 ```python
-{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+{
+    "title": "Anna Karenina",
+    "author": "Leo Tolstoy",
+    "year": 1877,
+}
 ```
 
 </td>

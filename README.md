@@ -232,7 +232,7 @@ of the Operation object.
 
 ### Request
 
-Decorator `request_schema` adds information about the Operation requests.
+Decorator `request_schema` adds information about the operation requests.
 Request can have a body, query parameters, headers and cookies.
 
 ```python
@@ -792,6 +792,71 @@ object.
 </table>
 
 ### Security requirements
+
+Decorator `security_requirements`
+declares [security mechanisms](https://spec.openapis.org/oas/v3.1.0#securityRequirementObject)
+that can be used for this operation.
+
+```python
+from openapify import security_requirements
+```
+
+This decorator takes one or more `SecurityRequirement` mappings, where the key
+is the requirement name and the value is `SecurityScheme` object. There are
+classes for
+each [security scheme](https://spec.openapis.org/oas/v3.1.0#security-scheme-object)
+which can be imported as follows:
+
+```python
+from openapify.core.openapi.models import (
+    APIKeySecurityScheme,
+    HTTPSecurityScheme,
+    OAuth2SecurityScheme,
+    OpenIDConnectSecurityScheme,
+)
+```
+
+For example, to add authorization by token, you can write something like this:
+
+```python
+from openapify import security_requirements
+from openapify.core.openapi.models import (
+    APIKeySecurityScheme,
+    SecuritySchemeAPIKeyLocation,
+)
+
+InternalTokenSecurityRequirement = {
+    "x-auth-token": APIKeySecurityScheme(
+        name="X-Auh-Token",
+        location=SecuritySchemeAPIKeyLocation.HEADER,
+    )
+}
+
+@security_requirements(InternalTokenSecurityRequirement)
+def secure_operation():
+    ...
+```
+
+And the specification document will look like this:
+
+```yaml
+paths:
+  /secure_path:
+    get:
+      responses: {}
+      security:
+      - x-auth-token: []
+info:
+  title: API
+  version: 1.0.0
+openapi: 3.1.0
+components:
+  securitySchemes:
+    x-auth-token:
+      type: apiKey
+      name: X-Auh-Token
+      location: header
+```
 
 Integration with web-frameworks
 --------------------------------------------------------------------------------

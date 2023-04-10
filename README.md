@@ -837,7 +837,7 @@ def secure_operation():
     ...
 ```
 
-And the specification document will look like this:
+And the generated specification document will look like this:
 
 ```yaml
 paths:

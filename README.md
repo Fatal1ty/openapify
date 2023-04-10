@@ -825,14 +825,14 @@ from openapify.core.openapi.models import (
     SecuritySchemeAPIKeyLocation,
 )
 
-InternalTokenSecurityRequirement = {
+XAuthTokenSecurityRequirement = {
     "x-auth-token": APIKeySecurityScheme(
         name="X-Auh-Token",
         location=SecuritySchemeAPIKeyLocation.HEADER,
     )
 }
 
-@security_requirements(InternalTokenSecurityRequirement)
+@security_requirements(XAuthTokenSecurityRequirement)
 def secure_operation():
     ...
 ```

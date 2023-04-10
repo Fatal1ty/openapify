@@ -5,7 +5,9 @@ from setuptools import find_packages, setup
 setup(
     name="openapify",
     version="0.2",
-    description="Generate Open API Specification from code using decorators",
+    description=(
+        "Framework agnostic OpenAPI Specification generation for code lovers"
+    ),
     platforms="all",
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

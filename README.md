@@ -1,6 +1,6 @@
 # openapify
 
-###### OpenAPI Specification generation for code lovers
+###### Framework agnostic OpenAPI Specification generation for code lovers
 
 [![Latest Version](https://img.shields.io/pypi/v/openapify.svg)](https://pypi.python.org/pypi/openapify)
 [![Python Version](https://img.shields.io/pypi/pyversions/openapify.svg)](https://pypi.python.org/pypi/openapify)

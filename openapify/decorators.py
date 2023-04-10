@@ -92,10 +92,12 @@ def request_schema(  # type: ignore[misc]
 
 
 def response_schema(
-    schema: Type,
+    body: Optional[Type] = None,
     http_code: HttpCode = 200,
     media_type: str = "application/json",
     description: Optional[str] = None,
+    # TODO: Generate a required description depending on http_code
+    # https://spec.openapis.org/oas/v3.1.0#response-object
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     example: Optional[Any] = None,
     examples: Optional[Mapping[str, Union[Example, Any]]] = None,
@@ -108,7 +110,7 @@ def response_schema(
             (
                 "response",
                 {
-                    "schema": schema,
+                    "body": body,
                     "http_code": http_code,
                     "media_type": media_type,
                     "description": description,

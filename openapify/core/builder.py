@@ -127,7 +127,7 @@ class OpenAPISpecBuilder:
                     parameters.extend(self._build_query_params(query_params))
                 headers = args.get("headers")
                 if headers:
-                    parameters.extend(self._build_headers(headers))
+                    parameters.extend(self._build_request_headers(headers))
                 cookies = args.get("cookies")
                 if cookies:
                     parameters.extend(self._build_cookies(cookies))
@@ -135,7 +135,11 @@ class OpenAPISpecBuilder:
             elif args_type == "response":
                 args = args.copy()
                 http_code = args.pop("http_code")
-                code_responses[http_code] = self._build_response(**args)
+                body_value_type = args.pop("body")
+                if body_value_type is not None:
+                    code_responses[http_code] = self._build_response(
+                        body=body_value_type, **args
+                    )
             elif args_type == "path_docs":
                 summary = args.get("summary")
                 description = args.get("description")
@@ -197,7 +201,7 @@ class OpenAPISpecBuilder:
             )
         return result
 
-    def _build_headers(
+    def _build_request_headers(
         self, headers: Dict[str, Union[str, Header]]
     ) -> Sequence[openapi.Parameter]:
         result = []
@@ -216,6 +220,29 @@ class OpenAPISpecBuilder:
                     deprecated=header.deprecated,
                     allowEmptyValue=header.allowEmptyValue,
                     schema=parameter_schema,
+                    example=header.example,
+                    examples=self._build_examples(header.examples),
+                )
+            )
+        return result
+
+    def _build_response_headers(
+        self, headers: Dict[str, Union[str, Header]]
+    ) -> Sequence[openapi.Header]:
+        result = []
+        for name, header in headers.items():
+            if not isinstance(header, Header):
+                header = Header(description=header)
+            header_schema = build_json_schema(
+                header.value_type, self.spec, ComponentType.HEADER
+            )
+            result.append(
+                openapi.Header(
+                    schema=header_schema,
+                    description=header.description,
+                    required=header.required,
+                    deprecated=header.deprecated,
+                    allowEmptyValue=header.allowEmptyValue,
                     example=header.example,
                     examples=self._build_examples(header.examples),
                 )
@@ -270,29 +297,22 @@ class OpenAPISpecBuilder:
 
     def _build_response(
         self,
-        schema: Type,
+        body: Type,
         media_type: str = "application/json",
         description: Optional[str] = None,
-        headers: Optional[Dict[str, Union[openapi.Header, Type]]] = None,
+        headers: Optional[Dict[str, Union[str, Header]]] = None,
         example: Optional[Any] = None,
         examples: Optional[Dict[str, Union[openapi.Example, Any]]] = None,
     ) -> openapi.Response:
         header_objects = {}
         if headers:
-            for key, value in headers.items():
-                if not isinstance(value, openapi.Header):
-                    header_schema = build_json_schema(
-                        value, self.spec, ComponentType.HEADER
-                    )
-                    header_objects[key] = openapi.Header(header_schema)
-                else:
-                    header_objects[key] = value
+            header_objects = self._build_response_headers(headers)
         return openapi.Response(
             description=description,
             headers=header_objects or None,
             content={
                 media_type: openapi.MediaType(
-                    schema=build_json_schema(schema, self.spec),
+                    schema=build_json_schema(body, self.spec),
                     example=example,
                     examples=self._build_examples(examples),
                 ),

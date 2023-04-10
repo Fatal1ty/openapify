@@ -34,10 +34,10 @@ Table of contents
 * [Installation](#installation)
 * [Quickstart](#quickstart)
 * [Decorators](#decorators)
-  * [Common information](#common-information)
-  * [Request](#request)
-  * [Response](#response)
-  * [Security requirements](#security-requirements)
+    * [Generic operation info](#generic-operation-info)
+    * [Request](#request)
+    * [Response](#response)
+    * [Security requirements](#security-requirements)
 * [Integration with web-frameworks](#integration-with-web-frameworks)
     * aiohttp
     * Writing your own integration
@@ -160,36 +160,46 @@ later use when building the OpenAPI document. We will look at what each
 decorator parameter is responsible for and how it is reflected in the final
 document.
 
-### Common information
+### Generic operation info
 
 Decorator `path_docs` adds generic information for
-[Operaion Object](https://spec.openapis.org/oas/v3.1.0#operationObject) which
-describes a single API operation on a path.
+[Operaion Object](https://spec.openapis.org/oas/v3.1.0#operation-object) which
+describes a single API operation on a path. Generic information includes
+summary, description, tags, external documentation and deprecation marker.
+
+```python
+from openapify import path_docs
+```
 
 #### summary
 
-An optional, string summary, intended to apply to the operation.
+An optional, string summary, intended to apply to the operation. This affects
+the value of
+the [`summary`](https://spec.openapis.org/oas/v3.1.0#operation-object) field of
+the Operation object.
 
 | Possible types | Examples              |
 |----------------|-----------------------|
 | `str`          | `"Getting new books"` |
 
-
 #### description
 
 An optional, string description, intended to apply to the
 operation. [CommonMark syntax](https://spec.commonmark.org) MAY be used for
-rich text representation.
+rich text representation. This affects the value of
+the [`description`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object.
 
 | Possible types | Examples                    |
 |----------------|-----------------------------|
 | `str`          | `"Returns a list of books"` |
 
-
 #### tags
 
 A list of tags for API documentation control. Tags can be used for logical
-grouping of operations by resources or any other qualifier.
+grouping of operations by resources or any other qualifier. This affects the
+value of the [`tags`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object.
 
 | Possible types  | Examples   |
 |-----------------|------------|
@@ -198,7 +208,9 @@ grouping of operations by resources or any other qualifier.
 #### external_docs
 
 Additional external documentation for this operation. It can be a single url or
-(url, description) pair.
+(url, description) pair. This affects the value of
+the [`summary`](https://spec.openapis.org/oas/v3.1.0#operation-object) field of
+the Operation object.
 
 | Possible types    | Examples                                                                  |
 |-------------------|---------------------------------------------------------------------------|
@@ -208,17 +220,368 @@ Additional external documentation for this operation. It can be a single url or
 #### deprecated
 
 Declares the operation to be deprecated. Consumers SHOULD refrain from usage
-of the declared operation. Default value is false.
+of the declared operation. Default value is false. This affects the value of
+the [`deprecated`](https://spec.openapis.org/oas/v3.1.0#operation-object) field
+of the Operation object.
+
+| Possible types | Examples                       |
+|----------------|--------------------------------|
+| `bool`         | <code lang="python">True</pre> |
+
+### Request
+
+Decorator `request_schema` adds information about operation requests. Request
+can have a body, query parameters, headers and cookies.
+
+```python
+from openapify import request_schema
+```
+
+#### body
+
+A request body can be described entirely by one `body` parameter of type `Body`
+or partially by separate `body_*` parameters (see below).
+
+In the first case it is `openapify.core.models.Body` object that has all the
+separate `body_*` parameters inside.This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object.
+
+In the second case it is the request body Python data type for which the JSON
+Schema will be built. This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`schema`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field of
+Media Type object inside
+the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#request-body-object) field
+of Request Body object.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Type</code> </td>
+<td>
+
+```python
+list[Book]
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Body</code> </td>
+<td>
+
+```python
+Body(
+    value_type=list[Book],
+    media_type="application/json",
+    required=True,
+    description="A book",
+    example=[
+        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}],
+)
+```
+
+</td>
+</tr>
+</table>
+
+#### media_type
+
+A media type
+or [media type range](https://www.rfc-editor.org/rfc/rfc7231#appendix-D) of the
+request body. This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the key
+of [`content`](https://spec.openapis.org/oas/v3.1.0#request-body-object) field
+of Request Body object.
+
+The default value is `"application/json"`.
+
+| Possible types | Examples            |
+|----------------|---------------------|
+| `str`          | `"application/xml"` |
+
+#### body_required
+
+Determines if the request body is required in the request. Defaults to false.
+This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`required`](https://spec.openapis.org/oas/v3.1.0#request-body-object)
+field of Request Body object.
 
 | Possible types | Examples |
 |----------------|----------|
 | `bool`         | `True`   |
 
-#### Request
+#### body_description
 
-#### Response
+A brief description of the request body. This could contain examples of
+use. [CommonMark syntax](https://spec.commonmark.org) MAY be used for rich text
+representation. This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`description`](https://spec.openapis.org/oas/v3.1.0#request-body-object)
+field of Request Body object.
 
-#### Security requirements
+| Possible types | Examples   |
+|----------------|------------|
+| `str`          | `"A book"` |
+
+#### body_example
+
+Example of the request body. The example object SHOULD be in the correct format
+as specified by the media type. This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`example`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field
+of
+Media Type object inside
+the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#request-body-object) field
+of Request Body object.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Any</code> </td>
+<td>
+
+```python
+[{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}]
+```
+
+</td>
+</tr>
+</table>
+
+#### body_examples
+
+Examples of the request body. Each example object SHOULD match the media type
+and specified schema if present. This affects the value of
+the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`examples`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field
+of
+Media Type object inside
+the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#request-body-object) field
+of Request Body object.
+
+The values of this dictionary could be either examples themselves,
+or `openapify.core.openapi.models.Example` objects. In the latter case,
+extended information about examples, such as a summary and description, can be
+added to the [Example](https://spec.openapis.org/oas/v3.1.0#example-object)
+object.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, Any]</code> </td>
+<td>
+
+```python
+{
+    "Anna Karenina": [
+        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+    ]
+}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, Example]</code> </td>
+<td>
+
+```python
+{
+    "Anna Karenina": Example(
+        value=[
+            {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+        ],
+        summary="The book 'Anna Karenina'",
+        description="An object illustrating the book 'Anna Karenina'"
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
+#### query_params
+
+Dictionary of query parameters applicable for this operation, where the key is
+the parameter name and the value can be either a Python data type or
+a `QueryParam` object.
+
+In the first case it is the Python data type for the query parameter for which
+the JSON Schema will be built. This affects the value of
+the [`parameters`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`schema`](https://spec.openapis.org/oas/v3.1.0#parameter-object) field of
+Parameter object.
+
+In the second case it is `openapify.core.models.QueryParam` object that can
+have extended information about the parameter, such as a default value,
+deprecation marker, examples etc.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, Type]</code> </td>
+<td>
+
+```python
+{"count": int}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, QueryParam]</code> </td>
+<td>
+
+```python
+{
+    "count": QueryParam(
+        value_type=int,
+        default=10,
+        required=False,
+        description="Limits the number of books returned",
+        deprecated=False,
+        allowEmptyValue=False,
+        example=42,
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
+#### headers
+
+Dictionary of request headers applicable for this operation, where the key is
+the header name and the value can be either a string or a `Header` object.
+
+In the first case it is the header description. This affects the value of
+the [`parameters`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`description`](https://spec.openapis.org/oas/v3.1.0#parameter-object)
+field of Parameter object.
+
+In the second case it is `openapify.core.models.Header` object that can have
+extended information about the header, such as a description, deprecation
+marker, examples etc.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, str]</code> </td>
+<td>
+
+```python
+{"X-Requested-With": "Information about the creation of the request"}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, Header]</code> </td>
+<td>
+
+```python
+{
+    "X-Requested-With": Header(
+        description="Information about the creation of the request",
+        required=False,
+        value_type=str,
+        deprecated=False,
+        allowEmptyValue=False,
+        example="XMLHttpRequest",
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
+#### cookies
+
+Dictionary of request cookies applicable for this operation, where the key is
+the cookie name and the value can be either a string or a `Cookie` object.
+
+In the first case it is the cookie description. This affects the value of
+the [`parameters`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`description`](https://spec.openapis.org/oas/v3.1.0#parameter-object)
+field of Parameter object.
+
+In the second case it is `openapify.core.models.Cookie` object that can have
+extended information about the cookie, such as a description, deprecation
+marker, examples etc.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, str]</code> </td>
+<td>
+
+```python
+{"__ga": "A randomly generated number as a client identifier"}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, Cookie]</code> </td>
+<td>
+
+```python
+{
+    "__ga": Cookie(
+        description="A randomly generated number as a client identifier",
+        required=False,
+        value_type=str,
+        deprecated=False,
+        allowEmptyValue=False,
+        example="1.2.345678901.2345678901",
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
+### Response
+
+### Security requirements
 
 Integration with web-frameworks
 --------------------------------------------------------------------------------

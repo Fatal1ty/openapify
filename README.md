@@ -477,7 +477,7 @@ deprecation marker, examples etc.
     "count": QueryParam(
         value_type=int,
         default=10,
-        required=False,
+        required=True,
         description="Limits the number of books returned",
         deprecated=False,
         allowEmptyValue=False,
@@ -528,7 +528,7 @@ marker, examples etc.
 {
     "X-Requested-With": Header(
         description="Information about the creation of the request",
-        required=False,
+        required=True,
         value_type=str,
         deprecated=False,
         allowEmptyValue=False,
@@ -579,7 +579,7 @@ marker, examples etc.
 {
     "__ga": Cookie(
         description="A randomly generated number as a client identifier",
-        required=False,
+        required=True,
         value_type=str,
         deprecated=False,
         allowEmptyValue=False,

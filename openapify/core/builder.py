@@ -140,7 +140,7 @@ class OpenAPISpecBuilder:
                 summary = args.get("summary")
                 description = args.get("description")
                 tags.extend(args.get("tags") or [])
-                _merge_parameters(parameters, args.get("parameters") or {})
+                # _merge_parameters(parameters, args.get("parameters") or {})
                 external_docs = self._build_external_docs(
                     args.get("external_docs")
                 )

@@ -33,6 +33,11 @@ Table of contents
 
 * [Installation](#installation)
 * [Quickstart](#quickstart)
+* [Decorators](#decorators)
+  * [Common information](#common-information)
+  * [Request](#request)
+  * [Response](#response)
+  * [Security requirements](#security-requirements)
 * [Integration with web-frameworks](#integration-with-web-frameworks)
     * aiohttp
     * Writing your own integration
@@ -99,7 +104,7 @@ method.
 from openapify import build_spec
 from openapify.core.models import RouteDef
 
-routes = [RouteDef("/books", "get", get_new_book)]
+routes = [RouteDef("/books", "get", get_new_books)]
 spec = build_spec(routes)
 print(spec.to_yaml())
 ```
@@ -146,6 +151,74 @@ components:
       - author
       - year
 ```
+
+Decorators
+--------------------------------------------------------------------------------
+
+Openapify has several decorators that embed necessary specific information for
+later use when building the OpenAPI document. We will look at what each
+decorator parameter is responsible for and how it is reflected in the final
+document.
+
+### Common information
+
+Decorator `path_docs` adds generic information for
+[Operaion Object](https://spec.openapis.org/oas/v3.1.0#operationObject) which
+describes a single API operation on a path.
+
+#### summary
+
+An optional, string summary, intended to apply to the operation.
+
+| Possible types | Examples              |
+|----------------|-----------------------|
+| `str`          | `"Getting new books"` |
+
+
+#### description
+
+An optional, string description, intended to apply to the
+operation. [CommonMark syntax](https://spec.commonmark.org) MAY be used for
+rich text representation.
+
+| Possible types | Examples                    |
+|----------------|-----------------------------|
+| `str`          | `"Returns a list of books"` |
+
+
+#### tags
+
+A list of tags for API documentation control. Tags can be used for logical
+grouping of operations by resources or any other qualifier.
+
+| Possible types  | Examples   |
+|-----------------|------------|
+| `Sequence[str]` | `["book"]` |
+
+#### external_docs
+
+Additional external documentation for this operation. It can be a single url or
+(url, description) pair.
+
+| Possible types    | Examples                                                                  |
+|-------------------|---------------------------------------------------------------------------|
+| `str`             | `"https://example.org/docs/books"`                                        |
+| `Tuple[str, str]` | `("https://example.org/docs/books", "External documentation for /books")` |
+
+#### deprecated
+
+Declares the operation to be deprecated. Consumers SHOULD refrain from usage
+of the declared operation. Default value is false.
+
+| Possible types | Examples |
+|----------------|----------|
+| `bool`         | `True`   |
+
+#### Request
+
+#### Response
+
+#### Security requirements
 
 Integration with web-frameworks
 --------------------------------------------------------------------------------

@@ -127,7 +127,7 @@ def path_docs(
     summary: Optional[str] = None,
     description: Optional[str] = None,
     tags: Optional[Sequence[str]] = None,
-    parameters: Optional[Mapping[str, Union[str, Parameter]]] = None,
+    # parameters: Optional[Mapping[str, Union[str, Parameter]]] = None,
     external_docs: Optional[Union[str, Tuple[str, str]]] = None,
     deprecated: Optional[bool] = None,
 ) -> Callable[[Handler], Handler]:
@@ -142,7 +142,7 @@ def path_docs(
                     "summary": summary,
                     "description": description,
                     "tags": tags,
-                    "parameters": parameters,
+                    # "parameters": parameters,
                     "external_docs": external_docs,
                     "deprecated": deprecated,
                 },

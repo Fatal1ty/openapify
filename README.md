@@ -209,7 +209,7 @@ field of the Operation object.
 
 #### external_docs
 
-Additional external documentation for this operation. It can be a single url or
+Additional external documentation for the operation. It can be a single url or
 (url, description) pair. This affects the value of
 the [`summary`](https://spec.openapis.org/oas/v3.1.0#operation-object) field of
 the Operation object.
@@ -432,7 +432,7 @@ object.
 
 #### query_params
 
-Dictionary of query parameters applicable for this operation, where the key is
+Dictionary of query parameters applicable for the operation, where the key is
 the parameter name and the value can be either a Python data type or
 a `QueryParam` object.
 
@@ -486,7 +486,7 @@ deprecation marker, examples etc.
 
 #### headers
 
-Dictionary of request headers applicable for this operation, where the key is
+Dictionary of request headers applicable for the operation, where the key is
 the header name and the value can be either a string or a `Header` object.
 
 In the first case it is the header description. This affects the value of
@@ -537,7 +537,7 @@ marker, examples etc.
 
 #### cookies
 
-Dictionary of request cookies applicable for this operation, where the key is
+Dictionary of request cookies applicable for the operation, where the key is
 the cookie name and the value can be either a string or a `Cookie` object.
 
 In the first case it is the cookie description. This affects the value of
@@ -658,7 +658,7 @@ of Response object.
 
 #### headers
 
-Dictionary of response headers applicable for this operation, where the key is
+Dictionary of response headers applicable for the operation, where the key is
 the header name and the value can be either a string or a `Header` object.
 
 In the first case it is the header description. This affects the value of
@@ -795,7 +795,7 @@ object.
 
 Decorator `security_requirements`
 declares [security mechanisms](https://spec.openapis.org/oas/v3.1.0#securityRequirementObject)
-that can be used for this operation.
+that can be used for the operation.
 
 ```python
 from openapify import security_requirements

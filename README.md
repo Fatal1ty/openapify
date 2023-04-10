@@ -269,7 +269,7 @@ of Request Body object.
 <td>
 
 ```python
-list[Book]
+Book
 ```
 
 </td>
@@ -280,13 +280,15 @@ list[Book]
 
 ```python
 Body(
-    value_type=list[Book],
+    value_type=Book,
     media_type="application/json",
     required=True,
     description="A book",
-    example=[
-        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
-    ],
+    example={
+        "title": "Anna Karenina",
+        "author": "Leo Tolstoy",
+        "year": 1877,
+    },
 )
 ```
 
@@ -361,7 +363,11 @@ of Request Body object.
 <td>
 
 ```python
-{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+{
+    "title": "Anna Karenina",
+    "author": "Leo Tolstoy",
+    "year": 1877,
+}
 ```
 
 </td>

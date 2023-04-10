@@ -156,16 +156,18 @@ Decorators
 --------------------------------------------------------------------------------
 
 Openapify has several decorators that embed necessary specific information for
-later use when building the OpenAPI document. We will look at what each
+later use when building the OpenAPI document. In general, decorators will
+define the information that will be included in
+the [Operaion Object](https://spec.openapis.org/oas/v3.1.0#operation-object)
+which describes a single API operation on a path. We will look at what each
 decorator parameter is responsible for and how it is reflected in the final
 document.
 
 ### Generic operation info
 
-Decorator `path_docs` adds generic information for
-[Operaion Object](https://spec.openapis.org/oas/v3.1.0#operation-object) which
-describes a single API operation on a path. Generic information includes
-summary, description, tags, external documentation and deprecation marker.
+Decorator `path_docs` adds generic information about the Operation object,
+which includes summary, description, tags, external documentation and
+deprecation marker.
 
 ```python
 from openapify import path_docs
@@ -230,8 +232,8 @@ of the Operation object.
 
 ### Request
 
-Decorator `request_schema` adds information about operation requests. Request
-can have a body, query parameters, headers and cookies.
+Decorator `request_schema` adds information about the Operation requests.
+Request can have a body, query parameters, headers and cookies.
 
 ```python
 from openapify import request_schema
@@ -243,7 +245,7 @@ A request body can be described entirely by one `body` parameter of type `Body`
 or partially by separate `body_*` parameters (see below).
 
 In the first case it is `openapify.core.models.Body` object that has all the
-separate `body_*` parameters inside.This affects the value of
+separate `body_*` parameters inside. This affects the value of
 the [`requestBody`](https://spec.openapis.org/oas/v3.1.0#operation-object)
 field of the Operation object.
 
@@ -358,7 +360,7 @@ of Request Body object.
 <td>
 
 ```python
-[{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}]
+{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
 ```
 
 </td>
@@ -395,9 +397,11 @@ object.
 
 ```python
 {
-    "Anna Karenina": [
-        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
-    ]
+    "Anna Karenina": {
+        "title": "Anna Karenina",
+        "author": "Leo Tolstoy",
+        "year": 1877,
+    }
 }
 ```
 
@@ -410,11 +414,13 @@ object.
 ```python
 {
     "Anna Karenina": Example(
-        value=[
-            {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
-        ],
+        value={
+            "title": "Anna Karenina",
+            "author": "Leo Tolstoy",
+            "year": 1877,
+        },
         summary="The book 'Anna Karenina'",
-        description="An object illustrating the book 'Anna Karenina'"
+        description="An object illustrating the book 'Anna Karenina'",
     )
 }
 ```
@@ -580,6 +586,207 @@ marker, examples etc.
 </table>
 
 ### Response
+
+Decorator `response_schema` describes a single response from the API Operation.
+Response can have an HTTP code, body and headers.
+
+```python
+from openapify import response_schema
+```
+
+#### body
+
+A Python data type for the response body for which
+the JSON Schema will be built. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`schema`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field of
+Media Type object inside the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#response-object) field
+of Response object.
+
+| Possible types | Examples |
+|----------------|----------|
+| `Type`         | `Book`   |
+
+#### http_code
+
+An HTTP code of the response. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely, the patterned key in
+the [Responses](https://spec.openapis.org/oas/v3.1.0#responses-object) object.
+
+| Possible types | Examples |
+|----------------|----------|
+| `str`          | `"200"`  |
+| `int`          | `400`    |
+
+#### media_type
+
+A media type
+or [media type range](https://www.rfc-editor.org/rfc/rfc7231#appendix-D) of the
+response body. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely, the key
+of [`content`](https://spec.openapis.org/oas/v3.1.0#response-object) field of
+Response object.
+
+The default value is `"application/json"`.
+
+| Possible types | Examples            |
+|----------------|---------------------|
+| `str`          | `"application/xml"` |
+
+####
+
+#### description
+
+A description of the response. [CommonMark syntax](https://spec.commonmark.org)
+MAY be used for rich text representation. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`description`](https://spec.openapis.org/oas/v3.1.0#response-object) field
+of Response object.
+
+
+| Possible types | Examples                |
+|----------------|-------------------------|
+| `str`          | `"Invalid ID Supplied"` |
+
+#### headers
+
+Dictionary of response headers applicable for this operation, where the key is
+the header name and the value can be either a string or a `Header` object.
+
+In the first case it is the header description. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`description`](https://spec.openapis.org/oas/v3.1.0#header-object)
+field of Header object.
+
+In the second case it is `openapify.core.models.Header` object that can have
+extended information about the header, such as a description, deprecation
+marker, examples etc.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, str]</code> </td>
+<td>
+
+```python
+{"Content-Location": "An alternate location for the returned data"}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, Header]</code> </td>
+<td>
+
+```python
+{
+    "Content-Location": Header(
+        description="An alternate location for the returned data",
+        example="/index.htm",
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
+#### example
+
+Example of the response body. The example object SHOULD be in the correct format
+as specified by the media type. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`example`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field
+of Media Type object inside the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#response-object) field of
+Response object.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Any</code> </td>
+<td>
+
+```python
+{"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+```
+
+</td>
+</tr>
+</table>
+
+#### examples
+
+Examples of the response body. Each example object SHOULD match the media type
+and specified schema if present. This affects the value of
+the [`responses`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`examples`](https://spec.openapis.org/oas/v3.1.0#media-type-object) field
+of Media Type object inside the value
+of [`content`](https://spec.openapis.org/oas/v3.1.0#response-object) field of
+Response object.
+
+The values of this dictionary could be either examples themselves,
+or `openapify.core.openapi.models.Example` objects. In the latter case,
+extended information about examples, such as a summary and description, can be
+added to the [Example](https://spec.openapis.org/oas/v3.1.0#example-object)
+object.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, Any]</code> </td>
+<td>
+
+```python
+{
+    "Anna Karenina": {
+        "title": "Anna Karenina",
+        "author": "Leo Tolstoy",
+        "year": 1877,
+    }
+}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, Example]</code> </td>
+<td>
+
+```python
+{
+    "Anna Karenina": Example(
+        value={
+            "title": "Anna Karenina",
+            "author": "Leo Tolstoy",
+            "year": 1877,
+        },
+        summary="The book 'Anna Karenina'",
+        description="An object illustrating the book 'Anna Karenina'",
+    )
+}
+```
+
+</td>
+</tr>
+</table>
 
 ### Security requirements
 

@@ -285,7 +285,8 @@ Body(
     required=True,
     description="A book",
     example=[
-        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}],
+        {"title": "Anna Karenina", "author": "Leo Tolstoy", "year": 1877}
+    ],
 )
 ```
 
@@ -588,7 +589,9 @@ marker, examples etc.
 ### Response
 
 Decorator `response_schema` describes a single response from the API Operation.
-Response can have an HTTP code, body and headers.
+Response can have an HTTP code, body and headers. If the Operation supports
+more than one response, then the decorator must be applied multiple times to
+cover each of them.
 
 ```python
 from openapify import response_schema

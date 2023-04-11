@@ -269,10 +269,10 @@ details.
 Integration with web-frameworks
 --------------------------------------------------------------------------------
 
-There is built-in support for a few web-frameworks to make the documentation
-even easier. Any other frameworks can be integrated with a little effort. If
-you are ready to take on this, you are very welcome to create
-a [pull request](https://github.com/Fatal1ty/openapify/pulls).
+There is built-in support for a few web-frameworks, which makes creating the
+documentation even easier and more fun. Any other frameworks can be integrated
+with a little effort. If you are ready to take on this, you are very welcome to
+create a [pull request](https://github.com/Fatal1ty/openapify/pulls).
 
 ### aiohttp
 

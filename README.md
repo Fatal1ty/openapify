@@ -16,8 +16,8 @@ static type checkers to continuously build the API documentation and keep it
 always up to date.
 
 Openapify is based on the idea of applying decorators on route handlers. Any
-web-framework has a routing system that let you link a route to a handler
-(a high-level function or a class method). By using decorators, you can add
+web-framework has a routing system that let us link a route to a handler
+(a high-level function or a class method). By using decorators, we can add
 information about requests, responses and other details that will then be used
 to create an entire OpenAPI document.
 
@@ -33,6 +33,7 @@ Table of contents
 
 * [Installation](#installation)
 * [Quickstart](#quickstart)
+* [Building the OpenAPI Document](#building-the-openapi-document)
 * [Decorators](#decorators)
     * [Generic operation info](#generic-operation-info)
     * [Request](#request)
@@ -113,8 +114,12 @@ As a result, we will get the following OpenAPI document which can be rendered
 using tools such as Swagger UI:
 
 ```yaml
+openapi: 3.1.0
+info:
+  title: API
+  version: 1.0.0
 paths:
-  /book:
+  /books:
     get:
       parameters:
       - name: count
@@ -129,10 +134,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Book'
-info:
-  title: API
-  version: 1.0.0
-openapi: 3.1.0
 components:
   schemas:
     Book:
@@ -151,6 +152,119 @@ components:
       - author
       - year
 ```
+
+Building the OpenAPI Document
+--------------------------------------------------------------------------------
+The final goal of this library is to build
+the [OpenAPI Document](https://spec.openapis.org/oas/v3.1.0#openapi-document)
+for your web-application. This document consists of common information about
+the application, such as a title and version, and specific information that
+outlines the functionalities of the API.
+
+Since openapify is now based
+on [apispec](https://github.com/marshmallow-code/apispec) library, the OpenAPI
+document is presented by `APISpec` class for the convenience of using the
+existing ecosystem of plugins. However, openapify has its own
+subclass `OpenAPIDocument` which makes it easier to specify some common fields,
+such as an array
+of [Server](https://spec.openapis.org/oas/v3.1.0#server-object) objects or
+array of
+common [Security Scheme](https://spec.openapis.org/oas/v3.1.0#security-scheme-object)
+objects.
+
+To build the document, there is `build_spec` function. The very basic document
+can be created by calling it with an empty list of route definitions, leaving
+all the parameters with their default values.
+```python
+from openapify import build_spec
+
+print(build_spec([]).to_yaml())
+```
+
+As a result, we will get the following document:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: API
+  version: 1.0.0
+paths: {}
+```
+
+We can change the common document attributes either by passing them
+to `build_spec`:
+
+```python
+from openapify import build_spec
+from openapify.core.openapi.models import HTTPSecurityScheme
+
+build_spec(
+    routes=[],
+    title="My Bookstore API",
+    version="1.1.0",
+    openapi_version="3.1.0",
+    servers=["http://127.0.0.1"],
+    security_schemes={"basic_auth": HTTPSecurityScheme()}
+)
+```
+
+or using a prepared `OpenAPIDocument` object:
+
+```python
+from openapify import OpenAPIDocument, build_spec
+from openapify.core.openapi.models import HTTPSecurityScheme
+
+spec = OpenAPIDocument(
+    title="My Bookstore API",
+    version="1.1.0",
+    openapi_version="3.1.0",
+    servers=["http://127.0.0.1"],
+    security_schemes={"basic_auth": HTTPSecurityScheme()},
+)
+build_spec([], spec)
+```
+
+To add meaning to our document, we can
+add [Path](https://spec.openapis.org/oas/v3.1.0#paths-object),
+[Component](https://spec.openapis.org/oas/v3.1.0#components-object)
+and other OpenAPI objects by applying [decorators](#decorators) on our route
+handlers and constructing route definitions that will be passed to the builder.
+A single route definition is presented by `RouteDef` class and a complete
+definition can look as follows:
+
+```python
+from openapify.core.models import RouteDef
+from openapify.core.openapi.models import Parameter, ParameterLocation
+
+def get_book_by_id_handler(...):
+    ...
+
+RouteDef(
+    path="/book/{id}",
+    method="get",
+    handler=get_book_by_id_handler,
+    summary="Getting the book",
+    description="Getting the book by id",
+    parameters=[
+        Parameter(
+            name="id",
+            location=ParameterLocation.PATH,
+            required=True,
+            schema={"type": "integer"},
+        )
+    ],
+    tags=["book"],
+)
+```
+
+As will be shown further, optional
+arguments `summary`, `description`, `parameters` and `tags` can be overridden
+or extended by `path_docs` and `request_schema` decorators.
+
+The creating of these route definitions can be automated and adapted to a
+specific web-framework, and openapify has built-in support for some of them.
+See [Integration with web-frameworks](#integration-with-web-frameworks) for
+details.
 
 Decorators
 --------------------------------------------------------------------------------

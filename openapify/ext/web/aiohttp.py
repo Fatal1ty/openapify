@@ -4,6 +4,7 @@ from typing import (
     Callable,
     Iterable,
     List,
+    Mapping,
     Optional,
     Protocol,
     Sequence,
@@ -29,7 +30,12 @@ from openapify.core.const import (
 )
 from openapify.core.jsonschema import build_json_schema
 from openapify.core.models import RouteDef
-from openapify.core.openapi.models import Parameter, ParameterLocation
+from openapify.core.openapi.models import (
+    Parameter,
+    ParameterLocation,
+    SecurityScheme,
+    Server,
+)
 
 PARAMETER_TEMPLATE = re.compile(r"{([^:{}]+)(?::(.+))?}")
 
@@ -94,12 +100,14 @@ def _complete_routes(routes: Iterable[RouteDef]) -> Iterable[RouteDef]:
 
 
 @overload
-def build_spec(app: Application, spec: APISpec) -> APISpec:
+def build_spec(app: Application, spec: Optional[APISpec] = None) -> APISpec:
     ...
 
 
 @overload
-def build_spec(routes: Iterable[AioHttpRouteDef], spec: APISpec) -> APISpec:
+def build_spec(
+    routes: Iterable[AioHttpRouteDef], spec: Optional[APISpec] = None
+) -> APISpec:
     ...
 
 
@@ -139,6 +147,8 @@ def build_spec(  # type: ignore[misc]
     version: str = DEFAULT_SPEC_VERSION,
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[BasePlugin] = (),
+    servers: Optional[List[Union[str, Server]]] = None,
+    security_schemes: Optional[Mapping[str, SecurityScheme]] = None,
     route_postprocessor: Optional[Callable[[RouteDef], RouteDef]] = None,
     **options: Any,
 ) -> APISpec:
@@ -156,6 +166,8 @@ def build_spec(  # type: ignore[misc]
         version=version,
         openapi_version=openapi_version,
         plugins=plugins,
+        servers=servers,
+        security_schemes=security_schemes,
         **options,
     )
 

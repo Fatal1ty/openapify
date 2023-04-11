@@ -15,6 +15,11 @@ from typing import (
 import apispec
 from typing_extensions import TypeAlias
 
+from openapify.core.const import (
+    DEFAULT_OPENAPI_VERSION,
+    DEFAULT_SPEC_TITLE,
+    DEFAULT_SPEC_VERSION,
+)
 from openapify.core.document import OpenAPIDocument
 from openapify.core.jsonschema import ComponentType, build_json_schema
 from openapify.core.models import (
@@ -57,9 +62,9 @@ class OpenAPISpecBuilder:
     def __init__(
         self,
         spec: Optional[apispec.APISpec] = None,
-        title: str = "API",
-        version: str = "1.0.0",
-        openapi_version: str = "3.1.0",
+        title: str = DEFAULT_SPEC_TITLE,
+        version: str = DEFAULT_SPEC_VERSION,
+        openapi_version: str = DEFAULT_OPENAPI_VERSION,
         plugins: Sequence[apispec.BasePlugin] = (),
         servers: Optional[List[Union[str, openapi.Server]]] = None,
         security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
@@ -375,10 +380,12 @@ def build_spec(
 def build_spec(
     routes: Iterable[RouteDef],
     *,
-    title: str = "API",
-    version: str = "1.0.0",
-    openapi_version: str = "3.1.0",
+    title: str = DEFAULT_SPEC_TITLE,
+    version: str = DEFAULT_SPEC_VERSION,
+    openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[apispec.BasePlugin] = (),
+    servers: Optional[List[Union[str, openapi.Server]]] = None,
+    security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
     **options: Any,
 ) -> apispec.APISpec:
     ...
@@ -388,9 +395,9 @@ def build_spec(
     routes: Iterable[RouteDef],
     spec: Optional[apispec.APISpec] = None,
     *,
-    title: str = "API",
-    version: str = "1.0.0",
-    openapi_version: str = "3.1.0",
+    title: str = DEFAULT_SPEC_TITLE,
+    version: str = DEFAULT_SPEC_VERSION,
+    openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[apispec.BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
     security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,

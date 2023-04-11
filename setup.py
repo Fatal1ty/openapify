@@ -25,6 +25,7 @@ setup(
     license="Apache License, Version 2.0",
     author="Alexander Tikhonov",
     author_email="random.gauss@gmail.com",
+    url="https://github.com/Fatal1ty/openapify",
     packages=find_packages(include=("openapify", "openapify.*")),
     package_data={"openapify": ["py.typed"]},
     python_requires=">=3.7",

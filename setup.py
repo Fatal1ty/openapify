@@ -4,10 +4,12 @@ from setuptools import find_packages, setup
 
 setup(
     name="openapify",
-    version="0.3",
+    version="0.3.1",
     description=(
         "Framework agnostic OpenAPI Specification generation for code lovers"
     ),
+    long_description=open("README.md", encoding="utf8").read(),
+    long_description_content_type="text/markdown",
     platforms="all",
     classifiers=[
         "License :: OSI Approved :: Apache Software License",

@@ -277,10 +277,11 @@ create a [pull request](https://github.com/Fatal1ty/openapify/pulls).
 ### aiohttp
 
 The documentation for [aiohttp](https://github.com/aio-libs/aiohttp)
-web-application can be built in two ways:
+web-application can be built in three ways:
 
 * Using an already existing [`aiohttp.web.Application`](https://docs.aiohttp.org/en/stable/web_reference.html#application) object
 * Using a set of [`aiohttp.web.RouteDef`](https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.RouteDef) objects
+* Using a set of objects implementing [`AioHttpRouteDef`](https://github.com/Fatal1ty/openapify/blob/2bbf2e99c06b31fa2f1465f2ebc118884ce2bb95/openapify/ext/web/aiohttp.py#L43-L46) protocol
 
 All we need is to pass either an application, or a set or route defs to
 modified `build_spec` function. See the example:

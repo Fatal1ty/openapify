@@ -43,7 +43,6 @@ Table of contents
     * [Response](#response)
     * [Security requirements](#security-requirements)
 * [Entity schema builders](#entity-schema-builders)
-    * [dataclasses](#dataclasses)
 
 Installation
 --------------------------------------------------------------------------------

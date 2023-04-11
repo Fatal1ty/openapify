@@ -165,7 +165,7 @@ Since openapify is now based
 on [apispec](https://github.com/marshmallow-code/apispec) library, the OpenAPI
 document is presented by `APISpec` class for the convenience of using the
 existing ecosystem of plugins. However, openapify has its own
-subclass `OpenAPIDocument` which makes it easier to specify some common fields,
+subclass `OpenAPIDocument` which makes it easier to add some common fields,
 such as an array
 of [Server](https://spec.openapis.org/oas/v3.1.0#server-object) objects or
 array of
@@ -229,8 +229,8 @@ add [Path](https://spec.openapis.org/oas/v3.1.0#paths-object),
 [Component](https://spec.openapis.org/oas/v3.1.0#components-object)
 and other OpenAPI objects by applying [decorators](#decorators) on our route
 handlers and constructing route definitions that will be passed to the builder.
-A single route definition is presented by `RouteDef` class and a complete
-definition can look as follows:
+A single complete route definition presented by `RouteDef` class can look like
+this:
 
 ```python
 from openapify.core.models import RouteDef

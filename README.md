@@ -34,17 +34,17 @@ Table of contents
 * [Installation](#installation)
 * [Quickstart](#quickstart)
 * [Building the OpenAPI Document](#building-the-openapi-document)
+* [Integration with web-frameworks](#integration-with-web-frameworks)
+    * [aiohttp](#aiohttp)
+    * [Writing your own integration](#writing-your-own-integration)
 * [Decorators](#decorators)
     * [Generic operation info](#generic-operation-info)
     * [Request](#request)
     * [Response](#response)
     * [Security requirements](#security-requirements)
-* [Integration with web-frameworks](#integration-with-web-frameworks)
-    * aiohttp
-    * Writing your own integration
 * [Entity schema builders](#entity-schema-builders)
-    * dataclasses
-    * Writing your own integration
+    * [dataclasses](#dataclasses)
+    * [Writing your own integration](#writing-your-own-integration-1)
 
 Installation
 --------------------------------------------------------------------------------
@@ -262,9 +262,66 @@ arguments `summary`, `description`, `parameters` and `tags` can be overridden
 or extended by `path_docs` and `request_schema` decorators.
 
 The creating of these route definitions can be automated and adapted to a
-specific web-framework, and openapify has built-in support for some of them.
+specific web-framework, and openapify has built-in support for a few of them.
 See [Integration with web-frameworks](#integration-with-web-frameworks) for
 details.
+
+Integration with web-frameworks
+--------------------------------------------------------------------------------
+
+There is built-in support for a few web-frameworks to make the documentation
+even easier. Any other frameworks can be integrated with a little effort. If
+you are ready to take on this, you are very welcome to create
+a [pull request](https://github.com/Fatal1ty/openapify/pulls).
+
+### aiohttp
+
+The documentation for [aiohttp](https://github.com/aio-libs/aiohttp)
+web-application can be built in two ways:
+
+* Using an already existing [`aiohttp.web.Application`](https://docs.aiohttp.org/en/stable/web_reference.html#application) object
+* Using a set of [`aiohttp.web.RouteDef`](https://docs.aiohttp.org/en/stable/web_reference.html#aiohttp.web.RouteDef) objects
+
+All we need is to pass either an application, or a set or route defs to
+modified `build_spec` function. See the example:
+```python
+from aiohttp import web
+from openapify import request_schema, response_schema
+from openapify.ext.web.aiohttp import build_spec
+
+routes = web.RouteTableDef()
+
+@response_schema(str, media_type="text/plain")
+@routes.post("/")
+async def hello(request):
+    return web.Response(text="Hello, world")
+
+app = web.Application()
+app.add_routes(routes)
+
+print(build_spec(app).to_yaml())
+```
+As a result, we will get the following document:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: API
+  version: 1.0.0
+paths:
+  /:
+    post:
+      responses:
+        '200':
+          content:
+            text/plain:
+              schema:
+                type: string
+```
+
+### Writing your own integration
+
+🚧 To be described
 
 Decorators
 --------------------------------------------------------------------------------
@@ -980,8 +1037,13 @@ components:
       location: header
 ```
 
-Integration with web-frameworks
---------------------------------------------------------------------------------
-
 Entity schema builders
 --------------------------------------------------------------------------------
+
+### dataclasses
+
+🚧 To be described
+
+### Writing your own integration
+
+🚧 To be described

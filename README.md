@@ -427,7 +427,6 @@ object.
             "year": 1877,
         },
         summary="The book 'Anna Karenina'",
-        description="An object illustrating the book 'Anna Karenina'",
     )
 }
 ```
@@ -566,7 +565,7 @@ marker, examples etc.
 <td>
 
 ```python
-{"__ga": "A randomly generated number as a client identifier"}
+{"__ga": "A randomly generated number as a client ID"}
 ```
 
 </td>
@@ -578,7 +577,7 @@ marker, examples etc.
 ```python
 {
     "__ga": Cookie(
-        description="A randomly generated number as a client identifier",
+        description="A randomly generated number as a client ID",
         required=True,
         value_type=str,
         deprecated=False,
@@ -792,7 +791,6 @@ object.
             "year": 1877,
         },
         summary="The book 'Anna Karenina'",
-        description="An object illustrating the book 'Anna Karenina'",
     )
 }
 ```

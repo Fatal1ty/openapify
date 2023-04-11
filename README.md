@@ -1018,16 +1018,16 @@ def secure_operation():
 And the generated specification document will look like this:
 
 ```yaml
+openapi: 3.1.0
+info:
+  title: API
+  version: 1.0.0
 paths:
   /secure_path:
     get:
       responses: {}
       security:
       - x-auth-token: []
-info:
-  title: API
-  version: 1.0.0
-openapi: 3.1.0
 components:
   securitySchemes:
     x-auth-token:

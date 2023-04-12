@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="openapify",
-    version="0.3.1",
+    version="0.3.2",
     description=(
         "Framework agnostic OpenAPI Specification generation for code lovers"
     ),

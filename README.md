@@ -328,7 +328,7 @@ Decorators
 Openapify has several decorators that embed necessary specific information for
 later use when building the OpenAPI document. In general, decorators will
 define the information that will be included in
-the [Operaion Object](https://spec.openapis.org/oas/v3.1.0#operation-object)
+the [Operation Object](https://spec.openapis.org/oas/v3.1.0#operation-object)
 which describes a single API operation on a path. We will look at what each
 decorator parameter is responsible for and how it is reflected in the final
 document.

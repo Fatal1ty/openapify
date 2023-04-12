@@ -1,0 +1,36 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test-code-style:
+    name: Code style tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install .
+          pip install -r requirements-dev.txt
+      - name: Run flake8
+        run: flake8 openapify --ignore=E203,W503
+      - name: Run mypy
+        run: mypy openapify
+      - name: Run black
+        run: black --check .
+      - name: Run codespell
+        run: codespell openapify tests README.md

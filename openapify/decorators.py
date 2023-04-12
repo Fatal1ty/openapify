@@ -19,7 +19,7 @@ from openapify.core.models import (
     QueryParam,
     SecurityRequirement,
 )
-from openapify.core.openapi.models import Example, HttpCode, Parameter
+from openapify.core.openapi.models import Example, HttpCode
 
 __openapify__ = "__openapify__"
 

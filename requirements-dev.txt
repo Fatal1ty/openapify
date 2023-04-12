@@ -1,0 +1,6 @@
+# tests
+mypy>=1.0
+flake8>=3.8.4
+isort>=5.6.4
+black>=23.3.0
+codespell>=2.2.2

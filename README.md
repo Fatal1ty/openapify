@@ -2,6 +2,7 @@
 
 ###### Framework agnostic OpenAPI Specification generation for code lovers
 
+[![Build Status](https://github.com/Fatal1ty/openapify/workflows/tests/badge.svg)](https://github.com/Fatal1ty/openapify/actions)
 [![Latest Version](https://img.shields.io/pypi/v/openapify.svg)](https://pypi.python.org/pypi/openapify)
 [![Python Version](https://img.shields.io/pypi/pyversions/openapify.svg)](https://pypi.python.org/pypi/openapify)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)

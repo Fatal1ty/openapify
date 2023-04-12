@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Literal, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 from mashumaro import DataClassDictMixin
 from mashumaro.config import BaseConfig
-from typing_extensions import TypeAlias
+from typing_extensions import Literal, TypeAlias
 
 HttpCode: TypeAlias = Union[str, int]
 Schema: TypeAlias = Mapping[str, Any]

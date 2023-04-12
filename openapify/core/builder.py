@@ -67,7 +67,9 @@ class OpenAPISpecBuilder:
         openapi_version: str = DEFAULT_OPENAPI_VERSION,
         plugins: Sequence[apispec.BasePlugin] = (),
         servers: Optional[List[Union[str, openapi.Server]]] = None,
-        security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
+        security_schemes: Optional[
+            Mapping[str, openapi.SecurityScheme]
+        ] = None,
         **options: Any,
     ):
         if spec is None:
@@ -92,7 +94,7 @@ class OpenAPISpecBuilder:
     def _process_route(self, route: RouteDef) -> None:
         method = route.method.lower()
         meta = getattr(route.handler, "__openapify__", [])
-        code_responses = {}
+        responses = openapi.Responses()
         summary = route.summary
         description = route.description
         tags = route.tags.copy() if route.tags else []
@@ -138,13 +140,7 @@ class OpenAPISpecBuilder:
                     parameters.extend(self._build_cookies(cookies))
 
             elif args_type == "response":
-                args = args.copy()
-                http_code = args.pop("http_code")
-                body_value_type = args.pop("body")
-                if body_value_type is not None:
-                    code_responses[http_code] = self._build_response(
-                        body=body_value_type, **args
-                    )
+                self._update_responses(responses=responses, **args)
             elif args_type == "path_docs":
                 args = args.copy()
                 summary = args.get("summary")
@@ -166,7 +162,7 @@ class OpenAPISpecBuilder:
                     summary=summary,
                     description=description,
                     requestBody=request_body,
-                    responses=openapi.Responses(codes=code_responses),
+                    responses=responses,
                     deprecated=deprecated,
                     tags=tags or None,
                     parameters=parameters or None,
@@ -234,24 +230,22 @@ class OpenAPISpecBuilder:
 
     def _build_response_headers(
         self, headers: Dict[str, Union[str, Header]]
-    ) -> Sequence[openapi.Header]:
-        result = []
+    ) -> Mapping[str, openapi.Header]:
+        result = {}
         for name, header in headers.items():
             if not isinstance(header, Header):
                 header = Header(description=header)
             header_schema = build_json_schema(
                 header.value_type, self.spec, ComponentType.HEADER
             )
-            result.append(
-                openapi.Header(
-                    schema=header_schema,
-                    description=header.description,
-                    required=header.required,
-                    deprecated=header.deprecated,
-                    allowEmptyValue=header.allowEmptyValue,
-                    example=header.example,
-                    examples=self._build_examples(header.examples),
-                )
+            result[name] = openapi.Header(
+                schema=header_schema,
+                description=header.description,
+                required=header.required,
+                deprecated=header.deprecated,
+                allowEmptyValue=header.allowEmptyValue,
+                example=header.example,
+                examples=self._build_examples(header.examples),
             )
         return result
 
@@ -301,29 +295,36 @@ class OpenAPISpecBuilder:
             required=required,
         )
 
-    def _build_response(
+    def _update_responses(
         self,
-        body: Type,
+        responses: openapi.Responses,
+        http_code: openapi.HttpCode,
+        body: Optional[Type] = None,
         media_type: str = "application/json",
         description: Optional[str] = None,
         headers: Optional[Dict[str, Union[str, Header]]] = None,
         example: Optional[Any] = None,
         examples: Optional[Dict[str, Union[openapi.Example, Any]]] = None,
-    ) -> openapi.Response:
-        header_objects = {}
+    ) -> None:
+        http_code = str(http_code)
+        if responses.codes is None:
+            responses.codes = {}
+        response = responses.codes.get(http_code)
+        if not response:
+            response = openapi.Response()
+            responses.codes[http_code] = response
         if headers:
-            header_objects = self._build_response_headers(headers)
-        return openapi.Response(
-            description=description,
-            headers=header_objects or None,
-            content={
-                media_type: openapi.MediaType(
-                    schema=build_json_schema(body, self.spec),
-                    example=example,
-                    examples=self._build_examples(examples),
-                ),
-            },
-        )
+            response.headers = self._build_response_headers(headers)
+        if description:
+            response.description = description
+        if body is not None:
+            if response.content is None:
+                response.content = {}
+            response.content[media_type] = openapi.MediaType(
+                schema=build_json_schema(body, self.spec),
+                example=example,
+                examples=self._build_examples(examples),
+            )
 
     @staticmethod
     def _build_external_docs(
@@ -386,7 +387,7 @@ def build_spec(
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[apispec.BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
-    security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
+    security_schemes: Optional[Mapping[str, openapi.SecurityScheme]] = None,
     **options: Any,
 ) -> apispec.APISpec:
     ...
@@ -401,7 +402,7 @@ def build_spec(
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[apispec.BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
-    security_schemes: Optional[Dict[str, openapi.SecurityScheme]] = None,
+    security_schemes: Optional[Mapping[str, openapi.SecurityScheme]] = None,
     **options: Any,
 ) -> apispec.APISpec:
     builder = OpenAPISpecBuilder(

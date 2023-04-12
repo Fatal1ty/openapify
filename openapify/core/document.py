@@ -44,7 +44,7 @@ class OpenAPIDocument(APISpec):
                 self.components.security_scheme(name, scheme.to_dict())
 
     def to_dict(self) -> Dict[str, Any]:
-        ret = {
+        ret: Dict[str, Any] = {
             "openapi": str(self.openapi_version),
             "info": {"title": self.title, "version": self.version},
         }

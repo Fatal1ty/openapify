@@ -67,13 +67,13 @@ class RequestBody(Object):
 class Response(Object):
     description: Optional[str] = None
     headers: Optional[Mapping[str, Header]] = None
-    content: Optional[Mapping[str, MediaType]] = None
+    content: Optional[Dict[str, MediaType]] = None
 
 
 @dataclass
 class Responses(Object):
     default: Optional[Response] = None
-    codes: Optional[Mapping[HttpCode, Response]] = None
+    codes: Optional[Dict[HttpCode, Response]] = None
 
     def __post_serialize__(self, d: Dict[Any, Any]) -> Dict[Any, Any]:
         codes = d.pop("codes", None)

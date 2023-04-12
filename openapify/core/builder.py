@@ -146,6 +146,7 @@ class OpenAPISpecBuilder:
                         body=body_value_type, **args
                     )
             elif args_type == "path_docs":
+                args = args.copy()
                 summary = args.get("summary")
                 description = args.get("description")
                 tags.extend(args.get("tags") or [])

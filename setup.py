@@ -31,7 +31,7 @@ setup(
     python_requires=">=3.7",
     install_requires=[
         "apispec",
-        "mashumaro>=3.6",
+        "mashumaro>=3.7",
     ],
     extras_require={
         "aiohttp": ["aiohttp"],

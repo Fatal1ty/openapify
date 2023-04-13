@@ -19,6 +19,7 @@ from openapify.core.const import (
     DEFAULT_OPENAPI_VERSION,
     DEFAULT_SPEC_TITLE,
     DEFAULT_SPEC_VERSION,
+    RESPONSE_DESCRIPTIONS,
 )
 from openapify.core.document import OpenAPIDocument
 from openapify.core.jsonschema import ComponentType, build_json_schema
@@ -46,6 +47,14 @@ METHOD_ORDER = [
     "options",
     "trace",
 ]
+
+
+def default_response_description(http_code: str) -> str:
+    result = RESPONSE_DESCRIPTIONS.get(http_code)
+    if result:
+        return result
+    else:
+        return RESPONSE_DESCRIPTIONS[f"{http_code[0]}XX"]
 
 
 def _merge_parameters(
@@ -325,6 +334,8 @@ class OpenAPISpecBuilder:
             response.headers = self._build_response_headers(headers)
         if description:
             response.description = description
+        elif not response.description:
+            response.description = default_response_description(http_code)
         if body is not None:
             if response.content is None:
                 response.content = {}

@@ -127,6 +127,7 @@ paths:
           type: integer
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -313,6 +314,7 @@ paths:
     post:
       responses:
         '200':
+          description: OK
           content:
             text/plain:
               schema:
@@ -1026,7 +1028,6 @@ info:
 paths:
   /secure_path:
     get:
-      responses: {}
       security:
       - x-auth-token: []
 components:

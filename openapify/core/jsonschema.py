@@ -23,7 +23,10 @@ def _build_json_schema_with_mashumaro(
     spec: Optional[APISpec] = None,
     component_type: ComponentType = ComponentType.SCHEMA,
 ) -> Optional[Dict[str, Any]]:
-    builder = JSONSchemaBuilder(dialect=OPEN_API_3_1)
+    builder = JSONSchemaBuilder(
+        dialect=OPEN_API_3_1,
+        ref_prefix=f"#/components/{ComponentTypeSpecKey[component_type]}",
+    )
     try:
         json_schema = builder.build(instance_type)
     except Exception:

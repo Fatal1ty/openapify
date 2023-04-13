@@ -207,6 +207,8 @@ class OpenAPISpecBuilder:
                     deprecated=param.deprecated,
                     allowEmptyValue=param.allowEmptyValue,
                     schema=parameter_schema,
+                    style=param.style,
+                    explode=param.explode,
                     example=param.example,
                     examples=self._build_examples(param.examples),
                 )

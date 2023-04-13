@@ -3,7 +3,12 @@ from typing import Any, List, Mapping, NamedTuple, Optional, Type, Union
 
 from typing_extensions import TypeAlias
 
-from openapify.core.openapi.models import Example, Parameter, SecurityScheme
+from openapify.core.openapi.models import (
+    Example,
+    Parameter,
+    ParameterStyle,
+    SecurityScheme,
+)
 
 SecurityRequirement: TypeAlias = Mapping[str, "SecurityScheme"]
 
@@ -58,5 +63,7 @@ class QueryParam:
     description: Optional[str] = None
     deprecated: Optional[bool] = None
     allowEmptyValue: Optional[bool] = None
+    style: Optional[ParameterStyle] = None
+    explode: Optional[bool] = None
     example: Optional[Any] = None
     examples: Optional[Mapping[str, Union[Example, Any]]] = None

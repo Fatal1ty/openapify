@@ -94,7 +94,7 @@ class OpenAPISpecBuilder:
     def _process_route(self, route: RouteDef) -> None:
         method = route.method.lower()
         meta = getattr(route.handler, "__openapify__", [])
-        responses = openapi.Responses()
+        responses: Optional[openapi.Responses] = None
         summary = route.summary
         description = route.description
         tags = route.tags.copy() if route.tags else []
@@ -121,7 +121,8 @@ class OpenAPISpecBuilder:
                     body_example = args.get("body_example")
                     body_examples = args.get("body_examples")
                 if body is not None:
-                    request_body = self._build_request_body(
+                    request_body = self._update_request_body(
+                        body=request_body,
                         value_type=body_value_type,
                         media_type=media_type,
                         required=body_required,
@@ -140,7 +141,7 @@ class OpenAPISpecBuilder:
                     parameters.extend(self._build_cookies(cookies))
 
             elif args_type == "response":
-                self._update_responses(responses=responses, **args)
+                responses = self._update_responses(responses=responses, **args)
             elif args_type == "path_docs":
                 args = args.copy()
                 summary = args.get("summary")
@@ -274,8 +275,9 @@ class OpenAPISpecBuilder:
             )
         return result
 
-    def _build_request_body(
+    def _update_request_body(
         self,
+        body: Optional[openapi.RequestBody],
         value_type: Type,
         media_type: str = "application/json",
         required: Optional[bool] = None,
@@ -283,21 +285,25 @@ class OpenAPISpecBuilder:
         example: Optional[Any] = None,
         examples: Optional[Mapping[str, Union[openapi.Example, Any]]] = None,
     ) -> openapi.RequestBody:
-        return openapi.RequestBody(
-            description=description,
-            content={
-                media_type: openapi.MediaType(
-                    schema=build_json_schema(value_type, self.spec),
-                    example=example,
-                    examples=self._build_examples(examples),
-                )
-            },
-            required=required,
-        )
+        if body is None:
+            body = openapi.RequestBody()
+        if description:
+            body.description = description
+        if required is not None:
+            body.required = required
+        if value_type is not None:
+            if body.content is None:
+                body.content = {}
+            body.content[media_type] = openapi.MediaType(
+                schema=build_json_schema(value_type, self.spec),
+                example=example,
+                examples=self._build_examples(examples),
+            )
+        return body
 
     def _update_responses(
         self,
-        responses: openapi.Responses,
+        responses: Optional[openapi.Responses],
         http_code: openapi.HttpCode,
         body: Optional[Type] = None,
         media_type: str = "application/json",
@@ -305,8 +311,10 @@ class OpenAPISpecBuilder:
         headers: Optional[Dict[str, Union[str, Header]]] = None,
         example: Optional[Any] = None,
         examples: Optional[Dict[str, Union[openapi.Example, Any]]] = None,
-    ) -> None:
+    ) -> openapi.Responses:
         http_code = str(http_code)
+        if responses is None:
+            responses = openapi.Responses()
         if responses.codes is None:
             responses.codes = {}
         response = responses.codes.get(http_code)
@@ -325,6 +333,7 @@ class OpenAPISpecBuilder:
                 example=example,
                 examples=self._build_examples(examples),
             )
+        return responses
 
     @staticmethod
     def _build_external_docs(

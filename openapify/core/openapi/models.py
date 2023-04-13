@@ -59,7 +59,7 @@ class MediaType(Object):
 @dataclass
 class RequestBody(Object):
     description: Optional[str] = None
-    content: Optional[Mapping[str, MediaType]] = None
+    content: Optional[Dict[str, MediaType]] = None
     required: Optional[bool] = None
 
 

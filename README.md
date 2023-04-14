@@ -380,6 +380,17 @@ field of the Operation object.
 |-----------------|------------|
 | `Sequence[str]` | `["book"]` |
 
+#### operation_id
+
+Unique string used to identify the operation. This affects the
+value of
+the [`operationId`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object.
+
+| Possible types | Examples   |
+|----------------|------------|
+| `str`          | `getBooks` |
+
 #### external_docs
 
 Additional external documentation for the operation. It can be a single url or

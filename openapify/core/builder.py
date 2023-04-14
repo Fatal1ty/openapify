@@ -108,6 +108,7 @@ class OpenAPISpecBuilder:
         description = route.description
         tags = route.tags.copy() if route.tags else []
         deprecated = None
+        operation_id = None
         external_docs = None
         security = None
         parameters = route.parameters.copy() if route.parameters else []
@@ -157,6 +158,7 @@ class OpenAPISpecBuilder:
                 description = args.get("description")
                 tags.extend(args.get("tags") or [])
                 # _merge_parameters(parameters, args.get("parameters") or {})
+                operation_id = args.get("operation_id")
                 external_docs = self._build_external_docs(
                     args.get("external_docs")
                 )
@@ -177,6 +179,7 @@ class OpenAPISpecBuilder:
                     tags=tags or None,
                     parameters=parameters or None,
                     externalDocs=external_docs,
+                    operationId=operation_id,
                     security=security,
                 ).to_dict()
             },

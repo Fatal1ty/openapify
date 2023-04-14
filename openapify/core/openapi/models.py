@@ -185,6 +185,7 @@ class Operation(Object):
     summary: Optional[str] = None
     description: Optional[str] = None
     externalDocs: Optional[ExternalDocumentation] = None
+    operationId: Optional[str] = None
     parameters: Optional[List[Parameter]] = None
     requestBody: Optional[RequestBody] = None
     responses: Optional[Responses] = None

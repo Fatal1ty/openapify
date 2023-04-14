@@ -6,7 +6,6 @@ from typing import (
     Optional,
     Sequence,
     Tuple,
-    Type,
     TypeVar,
     Union,
     overload,
@@ -18,6 +17,7 @@ from openapify.core.models import (
     Header,
     QueryParam,
     SecurityRequirement,
+    TypeAnnotation,
 )
 from openapify.core.openapi.models import Example, HttpCode
 
@@ -31,7 +31,9 @@ Handler = TypeVar("Handler")
 def request_schema(
     body: Optional[Body] = None,
     *,
-    query_params: Optional[Mapping[str, Union[Type, QueryParam]]] = None,
+    query_params: Optional[
+        Mapping[str, Union[TypeAnnotation, QueryParam]]
+    ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
 ) -> Callable[[Handler], Handler]:
@@ -40,14 +42,16 @@ def request_schema(
 
 @overload
 def request_schema(
-    body: Optional[Type] = None,
+    body: Optional[TypeAnnotation] = None,
     *,
     media_type: str = "application/json",
     body_required: bool = False,
     body_description: Optional[str] = None,
     body_example: Optional[Any] = None,
     body_examples: Optional[Mapping[str, Union[Example, Any]]] = None,
-    query_params: Optional[Mapping[str, Union[Type, QueryParam]]] = None,
+    query_params: Optional[
+        Mapping[str, Union[TypeAnnotation, QueryParam]]
+    ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
 ) -> Callable[[Handler], Handler]:
@@ -55,14 +59,16 @@ def request_schema(
 
 
 def request_schema(  # type: ignore[misc]
-    body: Optional[Type] = None,
+    body: Optional[TypeAnnotation] = None,
     *,
     media_type: str = "application/json",
     body_required: bool = False,
     body_description: Optional[str] = None,
     body_example: Optional[Any] = None,
     body_examples: Optional[Mapping[str, Union[Example, Any]]] = None,
-    query_params: Optional[Mapping[str, Union[Type, QueryParam]]] = None,
+    query_params: Optional[
+        Mapping[str, Union[TypeAnnotation, QueryParam]]
+    ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
 ) -> Callable[[Handler], Handler]:
@@ -92,7 +98,7 @@ def request_schema(  # type: ignore[misc]
 
 
 def response_schema(
-    body: Optional[Type] = None,
+    body: Optional[TypeAnnotation] = None,
     http_code: HttpCode = 200,
     media_type: str = "application/json",
     description: Optional[str] = None,

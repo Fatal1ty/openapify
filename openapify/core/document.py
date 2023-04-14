@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 from apispec import APISpec, BasePlugin
-from apispec.utils import deepupdate
 
 from openapify.core.const import (
     DEFAULT_OPENAPI_VERSION,
@@ -9,6 +8,15 @@ from openapify.core.const import (
     DEFAULT_SPEC_VERSION,
 )
 from openapify.core.openapi.models import SecurityScheme, Server
+
+
+def merge_dicts(original: Dict, update: Dict) -> Dict:
+    for key, value in update.items():
+        if key not in original:
+            original[key] = value
+        elif isinstance(value, dict):
+            merge_dicts(original[key], value)
+    return original
 
 
 class OpenAPIDocument(APISpec):
@@ -57,5 +65,5 @@ class OpenAPIDocument(APISpec):
             ret["components"] = components_dict
         if self._tags:
             ret["tags"] = self._tags
-        ret = deepupdate(ret, self.options)
+        ret = merge_dicts(ret, self.options)
         return ret

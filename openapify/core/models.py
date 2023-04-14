@@ -12,6 +12,9 @@ from openapify.core.openapi.models import (
 
 SecurityRequirement: TypeAlias = Mapping[str, "SecurityScheme"]
 
+# https://github.com/python/mypy/issues/9773
+TypeAnnotation: TypeAlias = Any
+
 
 @dataclass
 class RouteDef:
@@ -25,7 +28,7 @@ class RouteDef:
 
 
 class Body(NamedTuple):
-    value_type: Type
+    value_type: TypeAnnotation
     media_type: str = "application/json"
     required: Optional[bool] = None
     description: Optional[str] = None
@@ -37,7 +40,7 @@ class Body(NamedTuple):
 class Header:
     description: Optional[str] = None
     required: Optional[bool] = None
-    value_type: Type = str
+    value_type: TypeAnnotation = str
     deprecated: Optional[bool] = None
     allowEmptyValue: Optional[bool] = None
     example: Optional[Any] = None
@@ -57,7 +60,7 @@ class Cookie:
 
 @dataclass
 class QueryParam:
-    value_type: Type = str
+    value_type: TypeAnnotation = str
     default: Optional[Any] = None
     required: Optional[bool] = None
     description: Optional[str] = None

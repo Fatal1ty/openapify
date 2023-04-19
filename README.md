@@ -259,7 +259,7 @@ RouteDef(
 
 As will be shown further, optional
 arguments `summary`, `description`, `parameters` and `tags` can be overridden
-or extended by `path_docs` and `request_schema` decorators.
+or extended by `operation_docs` and `request_schema` decorators.
 
 The creating of these route definitions can be automated and adapted to a
 specific web-framework, and openapify has built-in support for a few of them.
@@ -338,12 +338,12 @@ document.
 
 ### Generic operation info
 
-Decorator `path_docs` adds generic information about the Operation object,
+Decorator `operation_docs` adds generic information about the Operation object,
 which includes summary, description, tags, external documentation and
 deprecation marker.
 
 ```python
-from openapify import path_docs
+from openapify import operation_docs
 ```
 
 #### summary

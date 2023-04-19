@@ -152,7 +152,7 @@ class OpenAPISpecBuilder:
 
             elif args_type == "response":
                 responses = self._update_responses(responses=responses, **args)
-            elif args_type == "path_docs":
+            elif args_type == "operation_docs":
                 args = args.copy()
                 summary = args.get("summary")
                 description = args.get("description")

@@ -131,7 +131,7 @@ def response_schema(
     return decorator
 
 
-def path_docs(
+def operation_docs(
     summary: Optional[str] = None,
     description: Optional[str] = None,
     tags: Optional[Sequence[str]] = None,
@@ -146,7 +146,7 @@ def path_docs(
             handler.__openapify__ = meta  # type: ignore[attr-defined]
         meta.append(
             (
-                "path_docs",
+                "operation_docs",
                 {
                     "summary": summary,
                     "description": description,

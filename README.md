@@ -22,8 +22,7 @@ web-framework has a routing system that let us link a route to a handler
 information about requests, responses and other details that will then be used
 to create an entire OpenAPI document.
 
-> **Warning**
->
+> [!WARNING]\
 > This library is currently in pre-release stage and may have backward
 > incompatible changes prior to version 1.0. Please use caution when using this
 > library in production environments and be sure to thoroughly test any updates

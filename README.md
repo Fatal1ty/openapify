@@ -56,8 +56,7 @@ $ pip install openapify
 Quickstart
 --------------------------------------------------------------------------------
 
-> **Note**
->
+> [!NOTE]\
 > In the following example, we will intentionally demonstrate the process of
 > creating an OpenAPI document without being tied to a specific web-framework.
 > However, this process may be easier on a supported web-framework.

@@ -1044,7 +1044,7 @@ components:
     x-auth-token:
       type: apiKey
       name: X-Auh-Token
-      location: header
+      in: header
 ```
 
 Entity schema builders

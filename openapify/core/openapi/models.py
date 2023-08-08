@@ -147,6 +147,7 @@ class APIKeySecurityScheme(SecurityScheme):
     description: Optional[str] = None
 
     class Config(Object.Config):
+        serialize_by_alias = True
         aliases = {"location": "in"}
 
 

@@ -119,7 +119,9 @@ def build_spec(
     version: str = DEFAULT_SPEC_VERSION,
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[BasePlugin] = (),
-    route_postprocessor: Optional[Callable[[RouteDef], RouteDef]] = None,
+    route_postprocessor: Optional[
+        Callable[[RouteDef], Union[RouteDef, None]]
+    ] = None,
     **options: Any,
 ) -> APISpec:
     ...
@@ -133,7 +135,9 @@ def build_spec(
     version: str = DEFAULT_SPEC_VERSION,
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
     plugins: Sequence[BasePlugin] = (),
-    route_postprocessor: Optional[Callable[[RouteDef], RouteDef]] = None,
+    route_postprocessor: Optional[
+        Callable[[RouteDef], Union[RouteDef, None]]
+    ] = None,
     **options: Any,
 ) -> APISpec:
     ...
@@ -149,7 +153,9 @@ def build_spec(  # type: ignore[misc]
     plugins: Sequence[BasePlugin] = (),
     servers: Optional[List[Union[str, Server]]] = None,
     security_schemes: Optional[Mapping[str, SecurityScheme]] = None,
-    route_postprocessor: Optional[Callable[[RouteDef], RouteDef]] = None,
+    route_postprocessor: Optional[
+        Callable[[RouteDef], Union[RouteDef, None]]
+    ] = None,
     **options: Any,
 ) -> APISpec:
     if isinstance(app_or_routes, Application):
@@ -158,7 +164,7 @@ def build_spec(  # type: ignore[misc]
         routes = _aiohttp_route_defs_to_route_defs(app_or_routes)
     routes = _complete_routes(routes)
     if route_postprocessor:
-        routes = map(route_postprocessor, routes)
+        routes = filter(None, map(route_postprocessor, routes))
     return core_build_spec(
         routes=routes,
         spec=spec,

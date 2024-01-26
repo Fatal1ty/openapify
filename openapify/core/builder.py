@@ -13,8 +13,8 @@ from typing import (
 )
 
 import apispec
-from typing_extensions import TypeAlias
 
+from openapify.core.base_plugins import BodyBinaryPlugin, GuessMediaTypePlugin
 from openapify.core.const import (
     DEFAULT_OPENAPI_VERSION,
     DEFAULT_SPEC_TITLE,
@@ -30,10 +30,12 @@ from openapify.core.models import (
     QueryParam,
     RouteDef,
     SecurityRequirement,
+    TypeAnnotation,
 )
 from openapify.core.openapi import models as openapi
+from openapify.plugin import BasePlugin
 
-ComponentID: TypeAlias = str
+BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin())
 
 
 METHOD_ORDER = [
@@ -74,7 +76,7 @@ class OpenAPISpecBuilder:
         title: str = DEFAULT_SPEC_TITLE,
         version: str = DEFAULT_SPEC_VERSION,
         openapi_version: str = DEFAULT_OPENAPI_VERSION,
-        plugins: Sequence[apispec.BasePlugin] = (),
+        plugins: Sequence[BasePlugin] = (),
         servers: Optional[List[Union[str, openapi.Server]]] = None,
         security_schemes: Optional[
             Mapping[str, openapi.SecurityScheme]
@@ -86,12 +88,12 @@ class OpenAPISpecBuilder:
                 title=title,
                 version=version,
                 openapi_version=openapi_version,
-                plugins=plugins,
                 servers=servers,
                 security_schemes=security_schemes,
                 **options,
             )
         self.spec = spec
+        self.plugins: Sequence[BasePlugin] = (*plugins, *BASE_PLUGINS)
 
     def feed_routes(self, routes: Iterable[RouteDef]) -> None:
         for route in sorted(
@@ -130,9 +132,9 @@ class OpenAPISpecBuilder:
                     body_description = args.get("body_description")
                     body_example = args.get("body_example")
                     body_examples = args.get("body_examples")
-                if body is not None:
+                if body is not None or media_type is not None:
                     request_body = self._update_request_body(
-                        body=request_body,
+                        request_body=request_body,
                         value_type=body_value_type,
                         media_type=media_type,
                         required=body_required,
@@ -196,11 +198,15 @@ class OpenAPISpecBuilder:
         for name, param in query_params.items():
             if not isinstance(param, QueryParam):
                 param = QueryParam(param)
-            parameter_schema = build_json_schema(
-                param.value_type, self.spec, ComponentType.PARAMETER
+            parameter_schema = self.__build_definition_schema_with_plugins(
+                param, name
             )
-            if param.default is not None:
-                parameter_schema["default"] = param.default
+            if parameter_schema is None:
+                parameter_schema = build_json_schema(
+                    param.value_type, self.spec, ComponentType.PARAMETER
+                )
+                if param.default is not None:
+                    parameter_schema["default"] = param.default
             result.append(
                 openapi.Parameter(
                     name=name,
@@ -225,9 +231,15 @@ class OpenAPISpecBuilder:
         for name, header in headers.items():
             if not isinstance(header, Header):
                 header = Header(description=header)
-            parameter_schema = build_json_schema(
-                header.value_type, self.spec, ComponentType.PARAMETER
+            parameter_schema = self.__build_definition_schema_with_plugins(
+                header, name
             )
+            if parameter_schema is None:
+                parameter_schema = build_json_schema(
+                    instance_type=header.value_type,
+                    spec=self.spec,
+                    component_type=ComponentType.PARAMETER,
+                )
             result.append(
                 openapi.Parameter(
                     name=name,
@@ -250,9 +262,15 @@ class OpenAPISpecBuilder:
         for name, header in headers.items():
             if not isinstance(header, Header):
                 header = Header(description=header)
-            header_schema = build_json_schema(
-                header.value_type, self.spec, ComponentType.HEADER
+            header_schema = self.__build_definition_schema_with_plugins(
+                header, name
             )
+            if header_schema is None:
+                header_schema = build_json_schema(
+                    instance_type=header.value_type,
+                    spec=self.spec,
+                    component_type=ComponentType.HEADER,
+                )
             result[name] = openapi.Header(
                 schema=header_schema,
                 description=header.description,
@@ -271,9 +289,15 @@ class OpenAPISpecBuilder:
         for name, cookie in cookies.items():
             if not isinstance(cookie, Cookie):
                 cookie = Cookie(cookie)
-            parameter_schema = build_json_schema(
-                cookie.value_type, self.spec, ComponentType.PARAMETER
+            parameter_schema = self.__build_definition_schema_with_plugins(
+                cookie, name
             )
+            if parameter_schema is None:
+                parameter_schema = build_json_schema(
+                    instance_type=cookie.value_type,
+                    spec=self.spec,
+                    component_type=ComponentType.PARAMETER,
+                )
             result.append(
                 openapi.Parameter(
                     name=name,
@@ -291,36 +315,53 @@ class OpenAPISpecBuilder:
 
     def _update_request_body(
         self,
-        body: Optional[openapi.RequestBody],
-        value_type: Type,
-        media_type: str = "application/json",
+        request_body: Optional[openapi.RequestBody],
+        value_type: TypeAnnotation,
+        media_type: Optional[str] = None,
         required: Optional[bool] = None,
         description: Optional[str] = None,
         example: Optional[Any] = None,
         examples: Optional[Mapping[str, Union[openapi.Example, Any]]] = None,
     ) -> openapi.RequestBody:
-        if body is None:
-            body = openapi.RequestBody()
+        if request_body is None:
+            request_body = openapi.RequestBody()
         if description:
-            body.description = description
+            request_body.description = description
         if required is not None:
-            body.required = required
+            request_body.required = required
+        body_schema: Optional[Dict[str, Any]] = None
         if value_type is not None:
-            if body.content is None:
-                body.content = {}
-            body.content[media_type] = openapi.MediaType(
-                schema=build_json_schema(value_type, self.spec),
+            body = Body(
+                value_type=value_type,
+                media_type=media_type,
+                required=required,
+                description=description,
+                example=example,
+                examples=examples,
+            )
+            body_schema = self.__build_definition_schema_with_plugins(body)
+            if body_schema is None:
+                body_schema = build_json_schema(value_type, self.spec)
+            if media_type is None:
+                media_type = self._determine_body_media_type(body, body_schema)
+        elif media_type is not None:
+            body_schema = {}
+        if body_schema is not None and media_type is not None:
+            if request_body.content is None:
+                request_body.content = {}
+            request_body.content[media_type] = openapi.MediaType(
+                schema=body_schema,
                 example=example,
                 examples=self._build_examples(examples),
             )
-        return body
+        return request_body
 
     def _update_responses(
         self,
         responses: Optional[openapi.Responses],
         http_code: openapi.HttpCode,
         body: Optional[Type] = None,
-        media_type: str = "application/json",
+        media_type: Optional[str] = None,
         description: Optional[str] = None,
         headers: Optional[Dict[str, Union[str, Header]]] = None,
         example: Optional[Any] = None,
@@ -341,11 +382,30 @@ class OpenAPISpecBuilder:
             response.description = description
         elif not response.description:
             response.description = default_response_description(http_code)
+        body_schema: Optional[Dict[str, Any]] = None
         if body is not None:
+            body_obj = Body(
+                value_type=body,
+                media_type=media_type,
+                required=True,
+                description=description,
+                example=example,
+                examples=examples,
+            )
+            body_schema = self.__build_definition_schema_with_plugins(body_obj)
+            if body_schema is None:
+                body_schema = build_json_schema(body, self.spec)
+            if media_type is None:
+                media_type = self._determine_body_media_type(
+                    body_obj, body_schema
+                )
+        elif media_type is not None:
+            body_schema = {}
+        if body_schema is not None and media_type is not None:
             if response.content is None:
                 response.content = {}
             response.content[media_type] = openapi.MediaType(
-                schema=build_json_schema(body, self.spec),
+                schema=body_schema,
                 example=example,
                 examples=self._build_examples(examples),
             )
@@ -395,6 +455,32 @@ class OpenAPISpecBuilder:
                 result[key] = openapi.Example(value)
         return result
 
+    def __build_definition_schema_with_plugins(
+        self,
+        definition: Union[Body, Cookie, Header, QueryParam],
+        name: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        for plugin in self.plugins:
+            try:
+                schema = plugin.schema_helper(definition, name)
+                if schema is not None:
+                    return schema
+            except NotImplementedError:
+                continue
+        return None
+
+    def _determine_body_media_type(
+        self, body: Body, schema: Dict[str, Any]
+    ) -> Optional[str]:
+        for plugin in self.plugins:
+            try:
+                media_type = plugin.media_type_helper(body, schema)
+                if media_type is not None:
+                    return media_type
+            except NotImplementedError:
+                continue
+        return None
+
 
 @overload
 def build_spec(
@@ -410,7 +496,7 @@ def build_spec(
     title: str = DEFAULT_SPEC_TITLE,
     version: str = DEFAULT_SPEC_VERSION,
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
-    plugins: Sequence[apispec.BasePlugin] = (),
+    plugins: Sequence[BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
     security_schemes: Optional[Mapping[str, openapi.SecurityScheme]] = None,
     **options: Any,
@@ -425,7 +511,7 @@ def build_spec(
     title: str = DEFAULT_SPEC_TITLE,
     version: str = DEFAULT_SPEC_VERSION,
     openapi_version: str = DEFAULT_OPENAPI_VERSION,
-    plugins: Sequence[apispec.BasePlugin] = (),
+    plugins: Sequence[BasePlugin] = (),
     servers: Optional[List[Union[str, openapi.Server]]] = None,
     security_schemes: Optional[Mapping[str, openapi.SecurityScheme]] = None,
     **options: Any,

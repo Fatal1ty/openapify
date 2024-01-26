@@ -50,7 +50,7 @@ class Header(Object):
 
 @dataclass
 class MediaType(Object):
-    schema: Optional[Schema]
+    schema: Optional[Schema] = None
     example: Optional[Any] = None
     examples: Optional[Mapping[str, Example]] = None
     encoding: Optional[str] = None

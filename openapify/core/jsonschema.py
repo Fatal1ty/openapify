@@ -49,12 +49,6 @@ def build_json_schema(
     if schema is not None:
         return schema
     return {}
-    # TODO: support apispec plugins
-    # component_id = type_name(instance_type, short=True)
-    # getattr(spec.components, component_type.value)(
-    #     component_id, component=None, schema=instance_type
-    # )
-    # return {"$ref": component_id}
 
 
 __all__ = ["build_json_schema", "ComponentType"]

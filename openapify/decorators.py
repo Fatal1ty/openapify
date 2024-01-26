@@ -44,7 +44,7 @@ def request_schema(
 def request_schema(
     body: Optional[TypeAnnotation] = None,
     *,
-    media_type: str = "application/json",
+    media_type: Optional[str] = None,
     body_required: bool = False,
     body_description: Optional[str] = None,
     body_example: Optional[Any] = None,
@@ -61,7 +61,7 @@ def request_schema(
 def request_schema(  # type: ignore[misc]
     body: Optional[TypeAnnotation] = None,
     *,
-    media_type: str = "application/json",
+    media_type: Optional[str] = None,
     body_required: bool = False,
     body_description: Optional[str] = None,
     body_example: Optional[Any] = None,
@@ -100,7 +100,7 @@ def request_schema(  # type: ignore[misc]
 def response_schema(
     body: Optional[TypeAnnotation] = None,
     http_code: HttpCode = 200,
-    media_type: str = "application/json",
+    media_type: Optional[str] = None,
     description: Optional[str] = None,
     # TODO: Generate a required description depending on http_code
     # https://spec.openapis.org/oas/v3.1.0#response-object

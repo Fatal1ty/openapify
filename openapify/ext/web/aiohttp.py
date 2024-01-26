@@ -18,7 +18,7 @@ from aiohttp import hdrs
 from aiohttp.abc import AbstractView
 from aiohttp.typedefs import Handler
 from aiohttp.web_app import Application
-from apispec import APISpec, BasePlugin
+from apispec import APISpec
 from mashumaro.jsonschema.annotations import Pattern
 from typing_extensions import Annotated
 
@@ -36,6 +36,7 @@ from openapify.core.openapi.models import (
     SecurityScheme,
     Server,
 )
+from openapify.plugin import BasePlugin
 
 PARAMETER_TEMPLATE = re.compile(r"{([^:{}]+)(?::(.+))?}")
 

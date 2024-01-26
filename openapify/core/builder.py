@@ -485,8 +485,7 @@ class OpenAPISpecBuilder:
 @overload
 def build_spec(
     routes: Iterable[RouteDef], spec: apispec.APISpec
-) -> apispec.APISpec:
-    ...
+) -> apispec.APISpec: ...
 
 
 @overload
@@ -500,8 +499,7 @@ def build_spec(
     servers: Optional[List[Union[str, openapi.Server]]] = None,
     security_schemes: Optional[Mapping[str, openapi.SecurityScheme]] = None,
     **options: Any,
-) -> apispec.APISpec:
-    ...
+) -> apispec.APISpec: ...
 
 
 def build_spec(

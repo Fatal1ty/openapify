@@ -174,9 +174,9 @@ class OAuth2SecurityScheme(SecurityScheme):
 @dataclass
 class OpenIDConnectSecurityScheme(SecurityScheme):
     openIdConnectUrl: str = ""
-    type: Literal[
+    type: Literal[SecuritySchemeType.OPEN_ID_CONNECT] = (
         SecuritySchemeType.OPEN_ID_CONNECT
-    ] = SecuritySchemeType.OPEN_ID_CONNECT
+    )
     description: Optional[str] = None
 
 

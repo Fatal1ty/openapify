@@ -36,8 +36,7 @@ def request_schema(
     ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
-) -> Callable[[Handler], Handler]:
-    ...
+) -> Callable[[Handler], Handler]: ...
 
 
 @overload
@@ -54,8 +53,7 @@ def request_schema(
     ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
-) -> Callable[[Handler], Handler]:
-    ...
+) -> Callable[[Handler], Handler]: ...
 
 
 def request_schema(  # type: ignore[misc]

@@ -101,15 +101,15 @@ def _complete_routes(routes: Iterable[RouteDef]) -> Iterable[RouteDef]:
 
 
 @overload
-def build_spec(app: Application, spec: Optional[APISpec] = None) -> APISpec:
-    ...
+def build_spec(
+    app: Application, spec: Optional[APISpec] = None
+) -> APISpec: ...
 
 
 @overload
 def build_spec(
     routes: Iterable[AioHttpRouteDef], spec: Optional[APISpec] = None
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 @overload
@@ -124,8 +124,7 @@ def build_spec(
         Callable[[RouteDef], Union[RouteDef, None]]
     ] = None,
     **options: Any,
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 @overload
@@ -140,8 +139,7 @@ def build_spec(
         Callable[[RouteDef], Union[RouteDef, None]]
     ] = None,
     **options: Any,
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 def build_spec(  # type: ignore[misc]

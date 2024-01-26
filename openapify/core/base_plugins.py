@@ -12,7 +12,7 @@ class BodyBinaryPlugin(BasePlugin):
     ) -> Optional[Dict[str, Any]]:
         try:
             if isinstance(definition, Body) and issubclass(
-                definition.value_type, ByteString
+                definition.value_type, ByteString  # type: ignore
             ):
                 return {}
             else:
@@ -25,7 +25,9 @@ class GuessMediaTypePlugin(BasePlugin):
     def media_type_helper(
         self, body: Body, schema: Dict[str, Any]
     ) -> Optional[str]:
-        if not schema and issubclass(body.value_type, ByteString):
+        if not schema and issubclass(
+            body.value_type, ByteString  # type: ignore
+        ):
             return "application/octet-stream"
         else:
             return "application/json"

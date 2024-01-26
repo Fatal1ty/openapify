@@ -15,7 +15,6 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -29,7 +28,7 @@ setup(
     url="https://github.com/Fatal1ty/openapify",
     packages=find_packages(include=("openapify", "openapify.*")),
     package_data={"openapify": ["py.typed"]},
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     install_requires=[
         "apispec",
         "mashumaro>=3.7",

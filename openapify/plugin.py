@@ -6,8 +6,10 @@ from openapify.core.models import Body, Cookie, Header, QueryParam
 
 
 class BasePlugin:
+    spec: APISpec
+
     def init_spec(self, spec: APISpec) -> None:
-        pass
+        self.spec = spec
 
     def schema_helper(
         self,

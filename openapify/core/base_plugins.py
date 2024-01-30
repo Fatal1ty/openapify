@@ -37,11 +37,6 @@ class GuessMediaTypePlugin(BasePlugin):
 
 
 class BaseSchemaPlugin(BasePlugin):
-    spec: APISpec
-
-    def init_spec(self, spec: APISpec) -> None:
-        self.spec = spec
-
     def schema_helper(
         self,
         obj: Union[Body, Cookie, Header, QueryParam],

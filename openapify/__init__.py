@@ -8,6 +8,7 @@ from .decorators import (
     response_schema,
     security_requirements,
 )
+from .plugin import BasePlugin
 
 __all__ = [
     "build_spec",
@@ -20,4 +21,5 @@ __all__ = [
     "Header",
     "QueryParam",
     "Example",
+    "BasePlugin",
 ]

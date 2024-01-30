@@ -50,7 +50,7 @@ class Header(Object):
 
 @dataclass
 class MediaType(Object):
-    schema: Optional[Schema]
+    schema: Optional[Schema] = None
     example: Optional[Any] = None
     examples: Optional[Mapping[str, Example]] = None
     encoding: Optional[str] = None
@@ -174,9 +174,9 @@ class OAuth2SecurityScheme(SecurityScheme):
 @dataclass
 class OpenIDConnectSecurityScheme(SecurityScheme):
     openIdConnectUrl: str = ""
-    type: Literal[
+    type: Literal[SecuritySchemeType.OPEN_ID_CONNECT] = (
         SecuritySchemeType.OPEN_ID_CONNECT
-    ] = SecuritySchemeType.OPEN_ID_CONNECT
+    )
     description: Optional[str] = None
 
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Mapping, NamedTuple, Optional, Type, Union
+from typing import Any, List, Mapping, Optional, Type, Union
 
 from typing_extensions import TypeAlias
 
@@ -27,9 +27,10 @@ class RouteDef:
     tags: Optional[List[str]] = None
 
 
-class Body(NamedTuple):
+@dataclass
+class Body:
     value_type: TypeAnnotation
-    media_type: str = "application/json"
+    media_type: Optional[str] = None
     required: Optional[bool] = None
     description: Optional[str] = None
     example: Optional[Any] = None

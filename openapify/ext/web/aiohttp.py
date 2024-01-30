@@ -18,7 +18,8 @@ from aiohttp import hdrs
 from aiohttp.abc import AbstractView
 from aiohttp.typedefs import Handler
 from aiohttp.web_app import Application
-from apispec import APISpec, BasePlugin
+from apispec import APISpec
+from mashumaro.jsonschema import OPEN_API_3_1, build_json_schema
 from mashumaro.jsonschema.annotations import Pattern
 from typing_extensions import Annotated
 
@@ -28,7 +29,6 @@ from openapify.core.const import (
     DEFAULT_SPEC_TITLE,
     DEFAULT_SPEC_VERSION,
 )
-from openapify.core.jsonschema import build_json_schema
 from openapify.core.models import RouteDef
 from openapify.core.openapi.models import (
     Parameter,
@@ -36,6 +36,7 @@ from openapify.core.openapi.models import (
     SecurityScheme,
     Server,
 )
+from openapify.plugin import BasePlugin
 
 PARAMETER_TEMPLATE = re.compile(r"{([^:{}]+)(?::(.+))?}")
 
@@ -83,7 +84,9 @@ def _pull_out_path_parameters(path: str) -> Tuple[str, List[Parameter]]:
                 name=name,
                 location=ParameterLocation.PATH,
                 required=True,
-                schema=build_json_schema(instance_type),
+                schema=build_json_schema(
+                    instance_type, dialect=OPEN_API_3_1
+                ).to_dict(),
             )
         )
         return f"{{{name}}}"
@@ -100,15 +103,15 @@ def _complete_routes(routes: Iterable[RouteDef]) -> Iterable[RouteDef]:
 
 
 @overload
-def build_spec(app: Application, spec: Optional[APISpec] = None) -> APISpec:
-    ...
+def build_spec(
+    app: Application, spec: Optional[APISpec] = None
+) -> APISpec: ...
 
 
 @overload
 def build_spec(
     routes: Iterable[AioHttpRouteDef], spec: Optional[APISpec] = None
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 @overload
@@ -123,8 +126,7 @@ def build_spec(
         Callable[[RouteDef], Union[RouteDef, None]]
     ] = None,
     **options: Any,
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 @overload
@@ -139,8 +141,7 @@ def build_spec(
         Callable[[RouteDef], Union[RouteDef, None]]
     ] = None,
     **options: Any,
-) -> APISpec:
-    ...
+) -> APISpec: ...
 
 
 def build_spec(  # type: ignore[misc]

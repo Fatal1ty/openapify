@@ -6,12 +6,12 @@ from openapify.core.models import Body, Cookie, Header, QueryParam
 
 
 class BasePlugin:
-    def init_spec(self, spec: Optional[APISpec]) -> None:
+    def init_spec(self, spec: APISpec) -> None:
         pass
 
     def schema_helper(
         self,
-        definition: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         raise NotImplementedError

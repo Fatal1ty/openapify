@@ -14,7 +14,11 @@ from typing import (
 
 import apispec
 
-from openapify.core.base_plugins import BodyBinaryPlugin, GuessMediaTypePlugin
+from openapify.core.base_plugins import (
+    BaseSchemaPlugin,
+    BodyBinaryPlugin,
+    GuessMediaTypePlugin,
+)
 from openapify.core.const import (
     DEFAULT_OPENAPI_VERSION,
     DEFAULT_SPEC_TITLE,
@@ -22,7 +26,6 @@ from openapify.core.const import (
     RESPONSE_DESCRIPTIONS,
 )
 from openapify.core.document import OpenAPIDocument
-from openapify.core.jsonschema import ComponentType, build_json_schema
 from openapify.core.models import (
     Body,
     Cookie,
@@ -35,7 +38,7 @@ from openapify.core.models import (
 from openapify.core.openapi import models as openapi
 from openapify.plugin import BasePlugin
 
-BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin())
+BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin(), BaseSchemaPlugin())
 
 
 METHOD_ORDER = [
@@ -94,6 +97,8 @@ class OpenAPISpecBuilder:
             )
         self.spec = spec
         self.plugins: Sequence[BasePlugin] = (*plugins, *BASE_PLUGINS)
+        for plugin in self.plugins:
+            plugin.init_spec(spec)
 
     def feed_routes(self, routes: Iterable[RouteDef]) -> None:
         for route in sorted(
@@ -198,13 +203,11 @@ class OpenAPISpecBuilder:
         for name, param in query_params.items():
             if not isinstance(param, QueryParam):
                 param = QueryParam(param)
-            parameter_schema = self.__build_definition_schema_with_plugins(
+            parameter_schema = self.__build_object_schema_with_plugins(
                 param, name
             )
             if parameter_schema is None:
-                parameter_schema = build_json_schema(
-                    param.value_type, self.spec, ComponentType.PARAMETER
-                )
+                parameter_schema = {}
                 if param.default is not None:
                     parameter_schema["default"] = param.default
             result.append(
@@ -231,15 +234,11 @@ class OpenAPISpecBuilder:
         for name, header in headers.items():
             if not isinstance(header, Header):
                 header = Header(description=header)
-            parameter_schema = self.__build_definition_schema_with_plugins(
+            parameter_schema = self.__build_object_schema_with_plugins(
                 header, name
             )
             if parameter_schema is None:
-                parameter_schema = build_json_schema(
-                    instance_type=header.value_type,
-                    spec=self.spec,
-                    component_type=ComponentType.PARAMETER,
-                )
+                parameter_schema = {}
             result.append(
                 openapi.Parameter(
                     name=name,
@@ -262,15 +261,11 @@ class OpenAPISpecBuilder:
         for name, header in headers.items():
             if not isinstance(header, Header):
                 header = Header(description=header)
-            header_schema = self.__build_definition_schema_with_plugins(
+            header_schema = self.__build_object_schema_with_plugins(
                 header, name
             )
             if header_schema is None:
-                header_schema = build_json_schema(
-                    instance_type=header.value_type,
-                    spec=self.spec,
-                    component_type=ComponentType.HEADER,
-                )
+                header_schema = {}
             result[name] = openapi.Header(
                 schema=header_schema,
                 description=header.description,
@@ -289,15 +284,11 @@ class OpenAPISpecBuilder:
         for name, cookie in cookies.items():
             if not isinstance(cookie, Cookie):
                 cookie = Cookie(cookie)
-            parameter_schema = self.__build_definition_schema_with_plugins(
+            parameter_schema = self.__build_object_schema_with_plugins(
                 cookie, name
             )
             if parameter_schema is None:
-                parameter_schema = build_json_schema(
-                    instance_type=cookie.value_type,
-                    spec=self.spec,
-                    component_type=ComponentType.PARAMETER,
-                )
+                parameter_schema = {}
             result.append(
                 openapi.Parameter(
                     name=name,
@@ -339,9 +330,9 @@ class OpenAPISpecBuilder:
                 example=example,
                 examples=examples,
             )
-            body_schema = self.__build_definition_schema_with_plugins(body)
+            body_schema = self.__build_object_schema_with_plugins(body)
             if body_schema is None:
-                body_schema = build_json_schema(value_type, self.spec)
+                body_schema = {}
             if media_type is None:
                 media_type = self._determine_body_media_type(body, body_schema)
         elif media_type is not None:
@@ -392,9 +383,9 @@ class OpenAPISpecBuilder:
                 example=example,
                 examples=examples,
             )
-            body_schema = self.__build_definition_schema_with_plugins(body_obj)
+            body_schema = self.__build_object_schema_with_plugins(body_obj)
             if body_schema is None:
-                body_schema = build_json_schema(body, self.spec)
+                body_schema = {}
             if media_type is None:
                 media_type = self._determine_body_media_type(
                     body_obj, body_schema
@@ -455,19 +446,12 @@ class OpenAPISpecBuilder:
                 result[key] = openapi.Example(value)
         return result
 
-    def __build_definition_schema_with_plugins(
+    def __build_object_schema_with_plugins(
         self,
-        definition: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
-        for plugin in self.plugins:
-            try:
-                schema = plugin.schema_helper(definition, name)
-                if schema is not None:
-                    return schema
-            except NotImplementedError:
-                continue
-        return None
+        return build_object_schema_with_plugins(obj, self.plugins, name)
 
     def _determine_body_media_type(
         self, body: Body, schema: Dict[str, Any]
@@ -480,6 +464,21 @@ class OpenAPISpecBuilder:
             except NotImplementedError:
                 continue
         return None
+
+
+def build_object_schema_with_plugins(
+    obj: Union[Body, Cookie, Header, QueryParam],
+    plugins: Sequence[BasePlugin],
+    name: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    for plugin in plugins:
+        try:
+            schema = plugin.schema_helper(obj, name)
+            if schema is not None:
+                return schema
+        except NotImplementedError:
+            continue
+    return None
 
 
 @overload

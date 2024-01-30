@@ -1,5 +1,8 @@
 from typing import Any, ByteString, Dict, Optional, Union
 
+from apispec import APISpec
+from mashumaro.jsonschema import OPEN_API_3_1, JSONSchemaBuilder
+
 from openapify.core.models import Body, Cookie, Header, QueryParam
 from openapify.plugin import BasePlugin
 
@@ -7,12 +10,12 @@ from openapify.plugin import BasePlugin
 class BodyBinaryPlugin(BasePlugin):
     def schema_helper(
         self,
-        definition: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         try:
-            if isinstance(definition, Body) and issubclass(
-                definition.value_type, ByteString  # type: ignore
+            if isinstance(obj, Body) and issubclass(
+                obj.value_type, ByteString  # type: ignore
             ):
                 return {}
             else:
@@ -31,3 +34,27 @@ class GuessMediaTypePlugin(BasePlugin):
             return "application/octet-stream"
         else:
             return "application/json"
+
+
+class BaseSchemaPlugin(BasePlugin):
+    spec: APISpec
+
+    def init_spec(self, spec: APISpec) -> None:
+        self.spec = spec
+
+    def schema_helper(
+        self,
+        obj: Union[Body, Cookie, Header, QueryParam],
+        name: Optional[str] = None,
+    ) -> Optional[Dict[str, Any]]:
+        builder = JSONSchemaBuilder(
+            dialect=OPEN_API_3_1, ref_prefix=f"#/components/schemas"
+        )
+        try:
+            json_schema = builder.build(obj.value_type)
+        except Exception:
+            return None
+        schemas = self.spec.components.schemas
+        for name, schema in builder.context.definitions.items():
+            schemas[name] = schema.to_dict()
+        return json_schema.to_dict()

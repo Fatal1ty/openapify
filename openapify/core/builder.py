@@ -208,8 +208,6 @@ class OpenAPISpecBuilder:
             )
             if parameter_schema is None:
                 parameter_schema = {}
-                if param.default is not None:
-                    parameter_schema["default"] = param.default
             result.append(
                 openapi.Parameter(
                     name=name,

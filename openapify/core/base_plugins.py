@@ -52,4 +52,6 @@ class BaseSchemaPlugin(BasePlugin):
         schemas = self.spec.components.schemas
         for name, schema in builder.context.definitions.items():
             schemas[name] = schema.to_dict()
+        if isinstance(obj, QueryParam) and obj.default is not None:
+            json_schema.default = obj.default
         return json_schema.to_dict()

@@ -1055,7 +1055,7 @@ Plugins
 Some aspects of creating an OpenAPI document can be changed using plugins.
 There is `openapify.plugins.BasePlugin` base class, which has all the methods
 available for definition. If you want to write a plugin that, for example, will
-only generate examples for query parameters, then it will be enough for you to
+only generate schema for request parameters, then it will be enough for you to
 define only one appropriate method, and leave the rest non-implemented.
 Plugin system works by going through all registered plugins and calling
 the appropriate method. If such a method raises `NotImplementedError` or
@@ -1115,6 +1115,8 @@ class PydanticSchemaPlugin(BasePlugin):
             self.spec.components.schemas.update(schema.pop("$defs", {}))
             return schema
 ```
+
+### media_type_helper
 
 A media type is used in OpenAPI Request
 [Body](https://spec.openapis.org/oas/v3.1.0#request-body-object) and

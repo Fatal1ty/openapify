@@ -17,8 +17,8 @@ class BodyBinaryPlugin(BasePlugin):
             if isinstance(obj, Body):
                 if get_value_type(obj.value_type) in (bytes, bytearray):
                     return {}
-            else:
-                return None
+
+            return None
         except TypeError:
             return None
 

@@ -48,7 +48,7 @@ class BaseSchemaPlugin(BasePlugin):
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         builder = JSONSchemaBuilder(
-            dialect=OPEN_API_3_1, ref_prefix=f"#/components/schemas"
+            dialect=OPEN_API_3_1, ref_prefix="#/components/schemas"
         )
         try:
             json_schema = builder.build(obj.value_type)

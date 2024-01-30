@@ -1,8 +1,9 @@
-from typing import Any, ByteString, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 from mashumaro.jsonschema import OPEN_API_3_1, JSONSchemaBuilder
 
 from openapify.core.models import Body, Cookie, Header, QueryParam
+from openapify.core.utils import get_value_type
 from openapify.plugin import BasePlugin
 
 
@@ -13,10 +14,9 @@ class BodyBinaryPlugin(BasePlugin):
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         try:
-            if isinstance(obj, Body) and issubclass(
-                obj.value_type, ByteString  # type: ignore
-            ):
-                return {}
+            if isinstance(obj, Body):
+                if get_value_type(obj.value_type) in (bytes, bytearray):
+                    return {}
             else:
                 return None
         except TypeError:
@@ -27,8 +27,9 @@ class GuessMediaTypePlugin(BasePlugin):
     def media_type_helper(
         self, body: Body, schema: Dict[str, Any]
     ) -> Optional[str]:
-        if not schema and issubclass(
-            body.value_type, ByteString  # type: ignore
+        if not schema and get_value_type(body.value_type) in (
+            bytes,
+            bytearray,
         ):
             return "application/octet-stream"
         else:

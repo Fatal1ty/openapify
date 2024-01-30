@@ -18,13 +18,6 @@ class BasePlugin:
     ) -> Optional[Dict[str, Any]]:
         raise NotImplementedError
 
-    def examples_helper(
-        self,
-        definition: Union[Body, Cookie, Header, QueryParam],
-        name: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
-        raise NotImplementedError
-
     def media_type_helper(
         self, body: Body, schema: Dict[str, Any]
     ) -> Optional[str]:

@@ -1,6 +1,5 @@
 from typing import Any, ByteString, Dict, Optional, Union
 
-from apispec import APISpec
 from mashumaro.jsonschema import OPEN_API_3_1, JSONSchemaBuilder
 
 from openapify.core.models import Body, Cookie, Header, QueryParam

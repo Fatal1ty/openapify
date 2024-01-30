@@ -1122,7 +1122,7 @@ A media type is used in OpenAPI Request
 [Body](https://spec.openapis.org/oas/v3.1.0#request-body-object) and
 [Response](https://spec.openapis.org/oas/v3.1.0#response-object) objects.
 By default, `application/octet-stream` is applied for `bytes` or `bytearray`
-types, and `application/json` is applied otherwise. You can support mode media
+types, and `application/json` is applied otherwise. You can support more media
 types or override existing ones with `media_type_helper` method.
 
 Let's imagine that you have an API route that returns PNG images as the body.

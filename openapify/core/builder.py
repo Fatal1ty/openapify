@@ -442,6 +442,8 @@ class OpenAPISpecBuilder:
         for key, value in examples.items():
             if not isinstance(value, openapi.Example):
                 result[key] = openapi.Example(value)
+            else:
+                result[key] = value
         return result
 
     def __build_object_schema_with_plugins(

@@ -55,6 +55,8 @@ METHOD_ORDER = [
 
 
 def default_response_description(http_code: str) -> str:
+    if http_code.lower() == "default":
+        return "Default Response"
     result = RESPONSE_DESCRIPTIONS.get(http_code)
     if result:
         return result

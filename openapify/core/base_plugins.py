@@ -1,6 +1,8 @@
+from collections.abc import Sequence
 from typing import Any, Dict, Optional, Union
 
 from mashumaro.jsonschema import OPEN_API_3_1, JSONSchemaBuilder
+from mashumaro.jsonschema.plugins import BasePlugin as BaseJSONSchemaPlugin
 
 from openapify.core.models import Body, Cookie, Header, QueryParam
 from openapify.core.utils import get_value_type
@@ -37,13 +39,18 @@ class GuessMediaTypePlugin(BasePlugin):
 
 
 class BaseSchemaPlugin(BasePlugin):
+    def __init__(self, plugins: Sequence[BaseJSONSchemaPlugin] = ()):
+        self.json_schema_plugins = plugins
+
     def schema_helper(
         self,
         obj: Union[Body, Cookie, Header, QueryParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         builder = JSONSchemaBuilder(
-            dialect=OPEN_API_3_1, ref_prefix="#/components/schemas"
+            dialect=OPEN_API_3_1,
+            ref_prefix="#/components/schemas",
+            plugins=self.json_schema_plugins,
         )
         try:
             json_schema = builder.build(obj.value_type)

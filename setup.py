@@ -15,11 +15,11 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Development Status :: 3 - Alpha",
     ],
     license="Apache License, Version 2.0",
@@ -31,7 +31,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "apispec",
-        "mashumaro>=3.7",
+        "mashumaro>=3.15",
     ],
     extras_require={
         "aiohttp": ["aiohttp"],

@@ -1123,7 +1123,7 @@ class PydanticSchemaPlugin(BasePlugin):
 > generation, which in turn incorporates its own [plugin system](https://github.com/Fatal1ty/mashumaro?tab=readme-ov-file#json-schema-plugins),
 > enabling customization of JSON Schema generation and support for additional
 > data types. For more nuanced modifications, particularly within nested data
-> models, you can employ BaseSchemaPlugin with a specified list of mashumaro JSON
+> models, you can employ `BaseSchemaPlugin` with a specified list of mashumaro JSON
 > Schema plugins. This approach allows for finer control over schema generation
 > when needed:
 > ```python

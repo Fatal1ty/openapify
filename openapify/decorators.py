@@ -15,6 +15,7 @@ from openapify.core.models import (
     Body,
     Cookie,
     Header,
+    PathParam,
     QueryParam,
     SecurityRequirement,
     TypeAnnotation,
@@ -34,6 +35,9 @@ def request_schema(
     query_params: Optional[
         Mapping[str, Union[TypeAnnotation, QueryParam]]
     ] = None,
+    path_params: Optional[
+        Mapping[str, Union[TypeAnnotation, PathParam]]
+    ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
 ) -> Callable[[Handler], Handler]: ...
@@ -51,6 +55,9 @@ def request_schema(
     query_params: Optional[
         Mapping[str, Union[TypeAnnotation, QueryParam]]
     ] = None,
+    path_params: Optional[
+        Mapping[str, Union[TypeAnnotation, PathParam]]
+    ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
 ) -> Callable[[Handler], Handler]: ...
@@ -66,6 +73,9 @@ def request_schema(  # type: ignore[misc]
     body_examples: Optional[Mapping[str, Union[Example, Any]]] = None,
     query_params: Optional[
         Mapping[str, Union[TypeAnnotation, QueryParam]]
+    ] = None,
+    path_params: Optional[
+        Mapping[str, Union[TypeAnnotation, PathParam]]
     ] = None,
     headers: Optional[Mapping[str, Union[str, Header]]] = None,
     cookies: Optional[Mapping[str, Union[str, Cookie]]] = None,
@@ -85,6 +95,7 @@ def request_schema(  # type: ignore[misc]
                     "body_example": body_example,
                     "body_examples": body_examples,
                     "query_params": query_params,
+                    "path_params": path_params,
                     "headers": headers,
                     "cookies": cookies,
                 },

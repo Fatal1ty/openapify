@@ -30,12 +30,14 @@ from openapify.core.models import (
     Body,
     Cookie,
     Header,
+    PathParam,
     QueryParam,
     RouteDef,
     SecurityRequirement,
     TypeAnnotation,
 )
 from openapify.core.openapi import models as openapi
+from openapify.core.openapi.models import ParameterLocation
 from openapify.plugin import BasePlugin
 
 BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin(), BaseSchemaPlugin())
@@ -120,7 +122,11 @@ class OpenAPISpecBuilder:
         operation_id = None
         external_docs = None
         security = None
-        parameters = route.parameters.copy() if route.parameters else []
+        parameters = []
+        route_path_params = {
+            param.name: param
+            for param in self._build_path_params(route.path_params or {})
+        }
         request_body: Optional[openapi.RequestBody] = None
         for args_type, args in meta:
             if args_type == "request":
@@ -152,6 +158,11 @@ class OpenAPISpecBuilder:
                 query_params = args.get("query_params")
                 if query_params:
                     parameters.extend(self._build_query_params(query_params))
+                path_params = args.get("path_params")
+                if path_params:
+                    for new_param in self._build_path_params(path_params):
+                        route_path_params.pop(new_param.name, None)
+                        parameters.append(new_param)
                 headers = args.get("headers")
                 if headers:
                     parameters.extend(self._build_request_headers(headers))
@@ -176,6 +187,7 @@ class OpenAPISpecBuilder:
                 security = self._build_security_requirements(
                     args.get("requirements")
                 )
+        parameters.extend(route_path_params.values())
         self.spec.path(
             route.path,
             operations={
@@ -221,6 +233,31 @@ class OpenAPISpecBuilder:
                     schema=parameter_schema,
                     style=param.style,
                     explode=param.explode,
+                    example=param.example,
+                    examples=self._build_examples(param.examples),
+                )
+            )
+        return result
+
+    def _build_path_params(
+        self, path_params: Dict[str, Union[Type, PathParam]]
+    ) -> Sequence[openapi.Parameter]:
+        result = []
+        for name, param in path_params.items():
+            if not isinstance(param, PathParam):
+                param = PathParam(param)
+            parameter_schema = self.__build_object_schema_with_plugins(
+                param, name
+            )
+            if parameter_schema is None:
+                parameter_schema = {}
+            result.append(
+                openapi.Parameter(
+                    name=name,
+                    location=openapi.ParameterLocation.PATH,
+                    description=param.description,
+                    required=True,
+                    schema=parameter_schema,
                     example=param.example,
                     examples=self._build_examples(param.examples),
                 )
@@ -404,7 +441,7 @@ class OpenAPISpecBuilder:
 
     @staticmethod
     def _build_external_docs(
-        data: Union[str, Tuple[str, str]]
+        data: Union[str, Tuple[str, str]],
     ) -> Optional[openapi.ExternalDocumentation]:
         if not data:
             return None
@@ -450,7 +487,7 @@ class OpenAPISpecBuilder:
 
     def __build_object_schema_with_plugins(
         self,
-        obj: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam, PathParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         return build_object_schema_with_plugins(obj, self.plugins, name)
@@ -469,7 +506,7 @@ class OpenAPISpecBuilder:
 
 
 def build_object_schema_with_plugins(
-    obj: Union[Body, Cookie, Header, QueryParam],
+    obj: Union[Body, Cookie, Header, QueryParam, PathParam],
     plugins: Sequence[BasePlugin],
     name: Optional[str] = None,
 ) -> Optional[Dict[str, Any]]:

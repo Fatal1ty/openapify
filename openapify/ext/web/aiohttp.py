@@ -2,6 +2,7 @@ import re
 from typing import (
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Mapping,
@@ -29,7 +30,7 @@ from openapify.core.const import (
     DEFAULT_SPEC_TITLE,
     DEFAULT_SPEC_VERSION,
 )
-from openapify.core.models import RouteDef
+from openapify.core.models import PathParam, RouteDef
 from openapify.core.openapi.models import (
     Parameter,
     ParameterLocation,
@@ -69,8 +70,10 @@ def _aiohttp_route_defs_to_route_defs(
             yield RouteDef(route.path, route.method, route.handler)
 
 
-def _pull_out_path_parameters(path: str) -> Tuple[str, List[Parameter]]:
-    parameters = []
+def _pull_out_path_parameters(
+    route: RouteDef,
+) -> Tuple[str, Dict[str, PathParam]]:
+    parameters = {}
 
     def _sub(match: re.Match) -> str:
         name = match.group(1)
@@ -79,26 +82,17 @@ def _pull_out_path_parameters(path: str) -> Tuple[str, List[Parameter]]:
             instance_type = Annotated[str, Pattern(regex)]
         else:
             instance_type = str  # type: ignore[misc]
-        parameters.append(
-            Parameter(
-                name=name,
-                location=ParameterLocation.PATH,
-                required=True,
-                schema=build_json_schema(
-                    instance_type, dialect=OPEN_API_3_1
-                ).to_dict(),
-            )
-        )
+        parameters[name] = PathParam(value_type=instance_type)
         return f"{{{name}}}"
 
-    return re.sub(PARAMETER_TEMPLATE, _sub, path), parameters
+    return re.sub(PARAMETER_TEMPLATE, _sub, route.path), parameters
 
 
 def _complete_routes(routes: Iterable[RouteDef]) -> Iterable[RouteDef]:
     for route in routes:
-        route.path, parameters = _pull_out_path_parameters(route.path)
+        route.path, parameters = _pull_out_path_parameters(route)
         if parameters:
-            route.parameters = parameters
+            route.path_params = parameters
         yield route
 
 

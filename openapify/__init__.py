@@ -1,6 +1,6 @@
 from .core.builder import build_spec
 from .core.document import OpenAPIDocument
-from .core.models import Body, Header, QueryParam
+from .core.models import Body, Header, PathParam, QueryParam
 from .core.openapi.models import Example
 from .decorators import (
     operation_docs,
@@ -20,6 +20,7 @@ __all__ = [
     "Body",
     "Header",
     "QueryParam",
+    "PathParam",
     "Example",
     "BasePlugin",
 ]

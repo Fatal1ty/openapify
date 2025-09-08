@@ -673,6 +673,55 @@ deprecation marker, examples etc.
 </tr>
 </table>
 
+### path_params
+
+Dictionary of path parameters applicable for the operation, where the key is
+the parameter name and the value can be either a Python data type or
+a `PathParam` object.
+
+In the first case it is the Python data type for the path parameter for which
+the JSON Schema will be built. This affects the value of
+the [`parameters`](https://spec.openapis.org/oas/v3.1.0#operation-object)
+field of the Operation object, or more precisely,
+the [`schema`](https://spec.openapis.org/oas/v3.1.0#parameter-object) field of
+Parameter object.
+
+In the second case it is `openapify.core.models.PathParam` object that can
+have extended information about the parameter, such as a description, examples.
+
+<table>
+<tr>
+<th>Possible types</th>
+<th>Examples</th>
+</tr>
+<tr>
+<td> <code>Mapping[str, Type]</code> </td>
+<td>
+
+```python
+{"id": UUID}
+```
+
+</td>
+</tr>
+<tr>
+<td> <code>Mapping[str, PathParam]</code> </td>
+<td>
+
+```python
+{
+    "id": PathParam(
+        value_type=UUID,
+        description="ID of the book",
+        example="eab9d66d-4317-464a-a995-510bd6e2148f",
+    )
+}
+```
+
+</td>
+</tr>
+</table>
+
 #### headers
 
 Dictionary of request headers applicable for the operation, where the key is

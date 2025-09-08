@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Union
 from mashumaro.jsonschema import OPEN_API_3_1, JSONSchemaBuilder
 from mashumaro.jsonschema.plugins import BasePlugin as BaseJSONSchemaPlugin
 
-from openapify.core.models import Body, Cookie, Header, QueryParam
+from openapify.core.models import Body, Cookie, Header, PathParam, QueryParam
 from openapify.core.utils import get_value_type
 from openapify.plugin import BasePlugin
 
@@ -12,7 +12,7 @@ from openapify.plugin import BasePlugin
 class BodyBinaryPlugin(BasePlugin):
     def schema_helper(
         self,
-        obj: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam, PathParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         try:
@@ -44,7 +44,7 @@ class BaseSchemaPlugin(BasePlugin):
 
     def schema_helper(
         self,
-        obj: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam, PathParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         builder = JSONSchemaBuilder(

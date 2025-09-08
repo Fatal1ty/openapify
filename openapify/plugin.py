@@ -2,7 +2,7 @@ from typing import Any, Dict, Optional, Union
 
 from apispec import APISpec
 
-from openapify.core.models import Body, Cookie, Header, QueryParam
+from openapify.core.models import Body, Cookie, Header, PathParam, QueryParam
 
 
 class BasePlugin:
@@ -13,7 +13,7 @@ class BasePlugin:
 
     def schema_helper(
         self,
-        obj: Union[Body, Cookie, Header, QueryParam],
+        obj: Union[Body, Cookie, Header, QueryParam, PathParam],
         name: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         raise NotImplementedError

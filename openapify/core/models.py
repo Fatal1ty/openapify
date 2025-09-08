@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, Type, Union
+from typing import Any, Dict, List, Mapping, Optional, Type, Union
 
 from typing_extensions import TypeAlias
 
 from openapify.core.openapi.models import (
     Example,
-    Parameter,
     ParameterStyle,
     SecurityScheme,
 )
@@ -17,13 +16,21 @@ TypeAnnotation: TypeAlias = Any
 
 
 @dataclass
+class PathParam:
+    value_type: TypeAnnotation = str
+    description: Optional[str] = None
+    example: Optional[Any] = None
+    examples: Optional[Mapping[str, Union[Example, Any]]] = None
+
+
+@dataclass
 class RouteDef:
     path: str
     method: str
     handler: Any
     summary: Optional[str] = None
     description: Optional[str] = None
-    parameters: Optional[List[Parameter]] = None
+    path_params: Optional[Dict[str, PathParam]] = None
     tags: Optional[List[str]] = None
 
 

@@ -20,7 +20,6 @@ from aiohttp.abc import AbstractView
 from aiohttp.typedefs import Handler
 from aiohttp.web_app import Application
 from apispec import APISpec
-from mashumaro.jsonschema import OPEN_API_3_1, build_json_schema
 from mashumaro.jsonschema.annotations import Pattern
 from typing_extensions import Annotated
 
@@ -31,12 +30,7 @@ from openapify.core.const import (
     DEFAULT_SPEC_VERSION,
 )
 from openapify.core.models import PathParam, RouteDef
-from openapify.core.openapi.models import (
-    Parameter,
-    ParameterLocation,
-    SecurityScheme,
-    Server,
-)
+from openapify.core.openapi.models import SecurityScheme, Server
 from openapify.plugin import BasePlugin
 
 PARAMETER_TEMPLATE = re.compile(r"{([^:{}]+)(?::(.+))?}")

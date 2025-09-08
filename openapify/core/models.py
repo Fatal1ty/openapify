@@ -5,7 +5,6 @@ from typing_extensions import TypeAlias
 
 from openapify.core.openapi.models import (
     Example,
-    Parameter,
     ParameterStyle,
     SecurityScheme,
 )

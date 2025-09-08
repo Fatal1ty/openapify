@@ -37,7 +37,6 @@ from openapify.core.models import (
     TypeAnnotation,
 )
 from openapify.core.openapi import models as openapi
-from openapify.core.openapi.models import ParameterLocation
 from openapify.plugin import BasePlugin
 
 BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin(), BaseSchemaPlugin())

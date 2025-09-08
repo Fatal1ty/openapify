@@ -37,6 +37,7 @@ from openapify.core.models import (
     TypeAnnotation,
 )
 from openapify.core.openapi import models as openapi
+from openapify.core.openapi.models import Parameter
 from openapify.plugin import BasePlugin
 
 BASE_PLUGINS = (BodyBinaryPlugin(), GuessMediaTypePlugin(), BaseSchemaPlugin())
@@ -121,7 +122,7 @@ class OpenAPISpecBuilder:
         operation_id = None
         external_docs = None
         security = None
-        parameters = []
+        parameters: list[Parameter] = []
         route_path_params = {
             param.name: param
             for param in self._build_path_params(route.path_params or {})
@@ -239,7 +240,7 @@ class OpenAPISpecBuilder:
         return result
 
     def _build_path_params(
-        self, path_params: Dict[str, Union[Type, PathParam]]
+        self, path_params: Mapping[str, Union[Type, PathParam]]
     ) -> Sequence[openapi.Parameter]:
         result = []
         for name, param in path_params.items():
